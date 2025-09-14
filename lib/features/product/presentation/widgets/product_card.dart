@@ -14,6 +14,8 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final hasDiscount = product.discountPercentage > 0;
     final discountedPrice = hasDiscount
         ? product.price - (product.price * product.discountPercentage / 100)
@@ -25,16 +27,31 @@ class ProductCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              spreadRadius: 1,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: isDark
+              ? Border.all(
+                  color: theme.colorScheme.outline.withOpacity(0.2),
+                  width: 0.5,
+                )
+              : null,
+          boxShadow: isDark
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    spreadRadius: 1,
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,12 +59,13 @@ class ProductCard extends StatelessWidget {
             // Product Image
             Expanded(
               flex: 3,
-              child: _buildProductImage(hasDiscount),
+              child: _buildProductImage(context, hasDiscount),
             ),
             // Product Details
             Expanded(
               flex: 2,
-              child: _buildProductDetails(hasDiscount, discountedPrice),
+              child:
+                  _buildProductDetails(context, hasDiscount, discountedPrice),
             ),
           ],
         ),
@@ -55,11 +73,15 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  Widget _buildProductImage(bool hasDiscount) {
+  Widget _buildProductImage(BuildContext context, bool hasDiscount) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color:
+            isDark ? theme.colorScheme.surfaceContainer : Colors.grey.shade100,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(12),
           topRight: Radius.circular(12),
@@ -79,31 +101,37 @@ class ProductCard extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     placeholder: (context, url) => Container(
-                      color: Colors.grey.shade100,
-                      child: const Center(
+                      color: isDark
+                          ? theme.colorScheme.surfaceContainer
+                          : Colors.grey.shade100,
+                      child: Center(
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.grey,
+                            theme.colorScheme.primary,
                           ),
                         ),
                       ),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: Colors.grey.shade200,
-                      child: const Icon(
+                      color: isDark
+                          ? theme.colorScheme.surfaceContainer
+                          : Colors.grey.shade200,
+                      child: Icon(
                         Icons.image,
                         size: 50,
-                        color: Colors.grey,
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   )
                 : Container(
-                    color: Colors.grey.shade200,
-                    child: const Icon(
+                    color: isDark
+                        ? theme.colorScheme.surfaceContainer
+                        : Colors.grey.shade200,
+                    child: Icon(
                       Icons.image,
                       size: 50,
-                      color: Colors.grey,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
           ),
@@ -118,8 +146,17 @@ class ProductCard extends StatelessWidget {
                   vertical: 3,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.red,
+                  color: isDark ? const Color(0xFFDC2626) : Colors.red,
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: isDark
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Text(
                   '-${product.discountPercentage.toStringAsFixed(0)}%',
@@ -136,7 +173,10 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  Widget _buildProductDetails(bool hasDiscount, double discountedPrice) {
+  Widget _buildProductDetails(
+      BuildContext context, bool hasDiscount, double discountedPrice) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
@@ -145,10 +185,10 @@ class ProductCard extends StatelessWidget {
         children: [
           Text(
             product.title,
-            style: const TextStyle(
+            style: theme.textTheme.bodyMedium?.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: theme.colorScheme.onSurface,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -162,18 +202,18 @@ class ProductCard extends StatelessWidget {
                   children: [
                     Text(
                       '\$${discountedPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     spacerWidth(4),
                     Text(
                       '\$${product.price.toStringAsFixed(2)}',
-                      style: TextStyle(
+                      style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: 12,
-                        color: Colors.grey.shade500,
+                        color: theme.colorScheme.onSurfaceVariant,
                         decoration: TextDecoration.lineThrough,
                       ),
                     ),
@@ -183,10 +223,10 @@ class ProductCard extends StatelessWidget {
               ] else ...[
                 Text(
                   '\$${product.price.toStringAsFixed(2)}',
-                  style: const TextStyle(
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -201,9 +241,9 @@ class ProductCard extends StatelessWidget {
                   spacerWidth(4),
                   Text(
                     product.rating?.toStringAsFixed(1) ?? '0.0',
-                    style: TextStyle(
+                    style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],

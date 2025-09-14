@@ -15,6 +15,9 @@ class CategoryFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     // Create a list with "All" as the first option
     final allCategories = [
       CategoryEntity(name: 'All', slug: 'all', url: ''),
@@ -38,26 +41,38 @@ class CategoryFilter extends StatelessWidget {
             child: FilterChip(
               label: Text(
                 category.name,
-                style: TextStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: isSelected ? Colors.white : Colors.grey.shade800,
+                  color: isSelected
+                      ? Colors.white
+                      : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               selected: isSelected,
               onSelected: (bool selected) {
                 onCategorySelected(category);
               },
-              backgroundColor: Colors.grey.shade200,
-              selectedColor: Colors.blue,
+              backgroundColor: isDark
+                  ? theme.colorScheme.surfaceContainerHighest
+                  : Colors.grey.shade200,
+              selectedColor: theme.colorScheme.primary,
               checkmarkColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: isSelected ? Colors.blue : Colors.grey.shade300,
+                  color: isSelected
+                      ? theme.colorScheme.primary
+                      : isDark
+                          ? theme.colorScheme.outline.withOpacity(0.3)
+                          : Colors.grey.shade300,
+                  width: isSelected ? 1.5 : 1.0,
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              elevation: isDark ? 2 : 0,
+              shadowColor:
+                  isDark ? Colors.black.withOpacity(0.3) : Colors.transparent,
             ),
           );
         },

@@ -1,5 +1,6 @@
 import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dart';
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:e_commerce/core/theme/widgets/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_commerce/features/auth/presentation/bloc/auth_bloc.dart';
@@ -11,12 +12,8 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-        centerTitle: true,
+      appBar: const CustomAppBar(
+        title: 'Profile',
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -57,20 +54,40 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // Profile Avatar
-                CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.blue.shade100,
-                  backgroundImage:
-                      user.photoUrl != null && user.photoUrl!.isNotEmpty
-                          ? NetworkImage(user.photoUrl!)
-                          : null,
-                  child: user.photoUrl == null || user.photoUrl!.isEmpty
-                      ? Icon(
-                          Icons.person,
-                          size: 60,
-                          color: Colors.blue.shade600,
-                        )
-                      : null,
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black.withOpacity(0.3)
+                            : Colors.black.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Theme.of(context).brightness ==
+                            Brightness.dark
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                        : Colors.blue.shade100,
+                    backgroundImage:
+                        user.photoUrl != null && user.photoUrl!.isNotEmpty
+                            ? NetworkImage(user.photoUrl!)
+                            : null,
+                    child: user.photoUrl == null || user.photoUrl!.isEmpty
+                        ? Icon(
+                            Icons.person,
+                            size: 60,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.blue.shade600,
+                          )
+                        : null,
+                  ),
                 ),
 
                 const SizedBox(height: 20),
@@ -78,11 +95,10 @@ class ProfilePage extends StatelessWidget {
                 // User Name
                 Text(
                   user.displayName ?? 'User',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
                 ),
 
                 const SizedBox(height: 8),
@@ -90,10 +106,12 @@ class ProfilePage extends StatelessWidget {
                 // Email
                 Text(
                   user.email,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7),
+                      ),
                 ),
 
                 const SizedBox(height: 40),
@@ -159,12 +177,30 @@ class ProfilePage extends StatelessWidget {
                   },
                 ),
 
+                // Theme Toggle Section
+                Container(
+                  key: const Key('theme_toggle_container'),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withOpacity(0.2),
+                    ),
+                  ),
+                  child: const ThemeToggleWidget(),
+                ),
+
                 const SizedBox(height: 20),
 
                 // Logout Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
+                    key: const Key('logout_button'),
                     onPressed: () {
                       _showLogoutDialog(context);
                     },
@@ -175,19 +211,18 @@ class ProfilePage extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        inherit: true,
+                      ),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.logout),
                         SizedBox(width: 8),
-                        Text(
-                          'Logout',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        Text('Logout'),
                       ],
                     ),
                   ),
@@ -207,40 +242,107 @@ class ProfilePage extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
+    return Builder(
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final theme = Theme.of(context);
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(8),
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withOpacity(0.08)
+                  : Colors.grey.shade200,
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.04),
+                blurRadius: isDark ? 8 : 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: Icon(
-            icon,
-            color: Colors.blue.shade600,
-            size: 24,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: isDark
+                              ? [
+                                  theme.colorScheme.primary.withOpacity(0.2),
+                                  theme.colorScheme.primary.withOpacity(0.1),
+                                ]
+                              : [
+                                  Colors.blue.shade50,
+                                  Colors.blue.shade100,
+                                ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark
+                              ? theme.colorScheme.primary.withOpacity(0.3)
+                              : Colors.blue.shade100,
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: isDark
+                            ? theme.colorScheme.primary
+                            : Colors.blue.shade600,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 16,
+                        color: isDark
+                            ? theme.colorScheme.onSurface.withOpacity(0.6)
+                            : Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios,
-          size: 16,
-          color: Colors.grey.shade400,
-        ),
-        onTap: onTap,
-      ),
+        );
+      },
     );
   }
 

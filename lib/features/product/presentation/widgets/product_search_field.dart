@@ -20,16 +20,37 @@ class ProductSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: isDark
+            ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.8)
+            : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isSearchFocused ? Colors.blue : Colors.transparent,
+          color:
+              isSearchFocused ? theme.colorScheme.primary : Colors.transparent,
           width: 1.5,
         ),
+        boxShadow: isDark
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
       ),
       child: TextField(
         controller: controller,
@@ -37,29 +58,41 @@ class ProductSearchField extends StatelessWidget {
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: 'Search products, brands...',
-          hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            fontSize: 14,
+          ),
           prefixIcon: Icon(
             Icons.search,
-            color: isSearchFocused ? Colors.blue : Colors.grey.shade500,
+            color: isSearchFocused
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurfaceVariant,
             size: 20,
           ),
           suffixIcon: controller.text.isNotEmpty
               ? IconButton(
                   icon: Icon(
                     Icons.clear,
-                    color: Colors.grey.shade500,
+                    color: theme.colorScheme.onSurfaceVariant,
                     size: 18,
                   ),
                   onPressed: onClear,
                 )
-              : Icon(Icons.mic, color: Colors.grey.shade500, size: 18),
+              : Icon(
+                  Icons.mic,
+                  color: theme.colorScheme.onSurfaceVariant,
+                  size: 18,
+                ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 10,
           ),
         ),
-        style: const TextStyle(fontSize: 14),
+        style: theme.textTheme.bodyMedium?.copyWith(
+          fontSize: 14,
+          color: theme.colorScheme.onSurface,
+        ),
         textInputAction: TextInputAction.search,
         onSubmitted: (value) {
           if (value.isNotEmpty && onSubmitted != null) {

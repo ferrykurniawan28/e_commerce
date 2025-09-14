@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:e_commerce/core/helpers/helpers.dart';
 import 'package:e_commerce/core/widgets/widgets.dart';
 import 'package:e_commerce/features/auth/presentation/bloc/auth_bloc.dart';
@@ -182,24 +184,50 @@ class _ProductListState extends State<ProductList> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: _buildSearchField(),
-        actions: [
-          const CartIconWithBadge(),
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: Colors.black87,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? null : theme.colorScheme.surface,
+            gradient: isDark
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF1A1F2E),
+                      Color(0xFF0A0E1A),
+                    ],
+                  )
+                : null,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
             ),
-            onPressed: () {
-              // Navigate to notifications
-            },
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withOpacity(0.3)
+                    : Colors.black.withOpacity(0.08),
+                blurRadius: isDark ? 8 : 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-        toolbarHeight: 70,
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            title: _buildSearchField(),
+            actions: [
+              const CartIconWithBadge(),
+            ],
+            toolbarHeight: 70,
+          ),
+        ),
       ),
       body: BlocConsumer<ProductBloc, ProductState>(
         listener: (context, state) {
@@ -302,8 +330,9 @@ class _ProductListState extends State<ProductList> {
       children: [
         // Filter Categories - Show if categories are available
         if (_categories.isNotEmpty) ...[
+          spacerHeight(10),
           _buildCategoryFilter(_categories),
-          spacerHeight(20),
+          spacerHeight(10),
         ],
 
         // Products Grid

@@ -7,59 +7,69 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _currentIndex = 0;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    _animationController.forward();
     Modular.to.pushNamed('/home/');
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: RouterOutlet(),
-      bottomNavigationBar: BottomNavigationBar(
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: RouterOutlet(),
+      ),
+      bottomNavigationBar: EnhancedBottomNavBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-
-          switch (index) {
-            case 0:
-              Modular.to.navigate('/home/');
-              break;
-            case 1:
-              Modular.to.navigate('/home/wishlist');
-              break;
-            case 2:
-              Modular.to.navigate('/home/profile');
-              break;
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            activeIcon: Icon(Icons.favorite),
-            label: 'Wishlist',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+        onTap: _onTabTapped,
       ),
     );
+  }
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    // Add subtle animation when changing tabs
+    _animationController.reset();
+    _animationController.forward();
+
+    switch (index) {
+      case 0:
+        Modular.to.navigate('/home/');
+        break;
+      case 1:
+        Modular.to.navigate('/home/wishlist');
+        break;
+      case 2:
+        Modular.to.navigate('/home/profile');
+        break;
+    }
   }
 }

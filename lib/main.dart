@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:e_commerce/core/network/network_info.dart';
 import 'package:e_commerce/core/services/hive_service.dart';
 import 'package:e_commerce/core/utils/utils.dart';
+import 'package:e_commerce/core/theme/app_theme.dart';
 import 'package:e_commerce/features/auth/data/datasources/auth_datasource_impl.dart';
 import 'package:e_commerce/features/auth/data/repositories/auth_reporistory_impl.dart';
 import 'package:e_commerce/features/auth/domain/repositories/auth_repository.dart';
@@ -27,20 +28,28 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await HiveService.init();
 
+  // Initialize adaptive theme
+  final savedThemeMode =
+      await AdaptiveTheme.getThemeMode() ?? AdaptiveThemeMode.system;
+
   // DEBUG: Clear all Hive data on startup for debugging
   // await HiveService.clearAllDataForDebug();
 
-  runApp(ModularApp(module: AppRoutes(), child: const MainApp()));
+  runApp(ModularApp(
+      module: AppRoutes(), child: MainApp(savedThemeMode: savedThemeMode)));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final AdaptiveThemeMode? savedThemeMode;
+
+  const MainApp({super.key, this.savedThemeMode});
 
   @override
   Widget build(BuildContext context) {
@@ -187,13 +196,17 @@ class MainApp extends StatelessWidget {
           ),
         ],
         child: NetworkListener(
-          child: MaterialApp.router(
-            routerDelegate: Modular.routerDelegate,
-            routeInformationParser: Modular.routeInformationParser,
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-              scaffoldBackgroundColor: Colors.white,
+          child: AdaptiveTheme(
+            light: AppTheme.lightTheme,
+            dark: AppTheme.darkTheme,
+            initial: savedThemeMode ?? AdaptiveThemeMode.system,
+            builder: (theme, darkTheme) => MaterialApp.router(
+              routerDelegate: Modular.routerDelegate,
+              routeInformationParser: Modular.routeInformationParser,
+              debugShowCheckedModeBanner: false,
+              theme: theme,
+              darkTheme: darkTheme,
+              title: 'E-Commerce App',
             ),
           ),
         ),

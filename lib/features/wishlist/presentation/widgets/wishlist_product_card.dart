@@ -13,6 +13,8 @@ class WishlistProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = wishlistProduct.product;
     final addedAt = wishlistProduct.wishlistItem.addedAt;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -22,45 +24,86 @@ class WishlistProductCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color:
+                isDark ? Colors.white.withOpacity(0.08) : Colors.grey.shade200,
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
+              color: isDark
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.grey.withOpacity(0.08),
+              spreadRadius: isDark ? 0 : 1,
+              blurRadius: isDark ? 8 : 4,
               offset: const Offset(0, 2),
             ),
+            if (isDark)
+              BoxShadow(
+                color: Colors.white.withOpacity(0.02),
+                spreadRadius: 0,
+                blurRadius: 2,
+                offset: const Offset(0, 1),
+              ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: CachedNetworkImage(
-                  imageUrl: product.thumbnail,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
+              // Product Image with enhanced styling
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withOpacity(0.4)
+                          : Colors.grey.withOpacity(0.1),
+                      spreadRadius: 0,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: product.thumbnail,
                     width: 80,
                     height: 80,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.image, color: Colors.grey),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      width: 80,
+                      height: 80,
+                      color: isDark
+                          ? theme.colorScheme.surfaceVariant
+                          : Colors.grey[100],
+                      child: Icon(
+                        Icons.image_outlined,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        size: 32,
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      width: 80,
+                      height: 80,
+                      color: isDark
+                          ? theme.colorScheme.surfaceVariant
+                          : Colors.grey[100],
+                      child: Icon(
+                        Icons.broken_image_outlined,
+                        color: theme.colorScheme.error,
+                        size: 32,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
 
               // Product Details
               Expanded(
@@ -69,41 +112,75 @@ class WishlistProductCard extends StatelessWidget {
                   children: [
                     Text(
                       product.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     if (product.brand != null)
-                      Text(
-                        product.brand!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? theme.colorScheme.primary.withOpacity(0.15)
+                              : theme.colorScheme.primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          product.brand!,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Text(
                           '\$${product.price.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                            color: isDark
+                                ? const Color(0xFF4ADE80) // Green-400
+                                : const Color(0xFF16A34A), // Green-600
                           ),
                         ),
                         if (product.discountPercentage > 0) ...[
                           const SizedBox(width: 8),
                           Text(
                             '\$${(product.price / (1 - product.discountPercentage / 100)).toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 14,
+                            style: theme.textTheme.bodyMedium?.copyWith(
                               decoration: TextDecoration.lineThrough,
-                              color: Colors.grey[600],
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFFDC2626).withOpacity(0.2)
+                                  : const Color(0xFFFEF2F2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '-${product.discountPercentage.toInt()}%',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: isDark
+                                    ? const Color(0xFFF87171)
+                                    : const Color(0xFFDC2626),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -112,9 +189,8 @@ class WishlistProductCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'Added ${_formatAddedDate(addedAt)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
