@@ -1,3 +1,4 @@
+import 'package:e_commerce/core/helpers/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dart';
@@ -35,7 +36,7 @@ class DismissibleWishlistItem extends StatelessWidget {
         color: Colors.red,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Icon(
@@ -43,7 +44,7 @@ class DismissibleWishlistItem extends StatelessWidget {
             color: Colors.white,
             size: 24,
           ),
-          SizedBox(width: 8),
+          spacerWidth(8),
           Text(
             'Remove',
             style: TextStyle(

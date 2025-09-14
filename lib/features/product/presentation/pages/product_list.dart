@@ -224,6 +224,7 @@ class _ProductListState extends State<ProductList> {
             title: _buildSearchField(),
             actions: [
               const CartIconWithBadge(),
+              spacerWidth(12),
             ],
             toolbarHeight: 70,
           ),

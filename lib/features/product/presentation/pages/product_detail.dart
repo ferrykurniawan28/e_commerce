@@ -5,6 +5,7 @@ import 'package:e_commerce/features/product/domain/entities/entities.dart';
 import 'package:e_commerce/features/product/presentation/bloc/product_bloc.dart';
 import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -69,12 +70,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       body: BlocBuilder<ProductBloc, ProductState>(
         builder: (context, state) {
           if (state is ProductLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(
+                color: theme.colorScheme.primary,
+              ),
+            );
           } else if (state is ProductDetailLoaded) {
             return _buildProductDetail(state.product);
           } else if (state is ProductError) {
@@ -84,15 +92,37 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           return const SizedBox.shrink();
         },
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: BlocBuilder<ProductBloc, ProductState>(
-          builder: (context, state) {
-            if (state is ProductDetailLoaded) {
-              return _buildAddToCartButton(state.product);
-            }
-            return const SizedBox.shrink();
-          },
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          border: Border(
+            top: BorderSide(
+              color: isDark
+                  ? Colors.white.withOpacity(0.08)
+                  : Colors.grey.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          boxShadow: isDark
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
+                  ),
+                ]
+              : [],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: BlocBuilder<ProductBloc, ProductState>(
+            builder: (context, state) {
+              if (state is ProductDetailLoaded) {
+                return _buildAddToCartButton(state.product);
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ),
     );
@@ -111,22 +141,46 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildSliverAppBar(ProductEntity product) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final allImages =
         product.images.isNotEmpty ? product.images : [product.thumbnail];
 
     return SliverAppBar(
       expandedHeight: 300,
       pinned: true,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: isDark
+                ? theme.colorScheme.surface.withOpacity(0.9)
+                : Colors.white.withOpacity(0.9),
             shape: BoxShape.circle,
+            border: isDark
+                ? Border.all(
+                    color: Colors.white.withOpacity(0.12),
+                    width: 1,
+                  )
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withOpacity(0.4)
+                    : Colors.black.withOpacity(0.1),
+                blurRadius: isDark ? 8 : 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: const Icon(Icons.arrow_back, color: Colors.black87),
+          child: Icon(
+            Icons.arrow_back,
+            color: theme.colorScheme.onSurface,
+            size: 22,
+          ),
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
@@ -135,20 +189,42 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: isDark
+                  ? theme.colorScheme.surface.withOpacity(0.9)
+                  : Colors.white.withOpacity(0.9),
               shape: BoxShape.circle,
+              border: isDark
+                  ? Border.all(
+                      color: Colors.white.withOpacity(0.12),
+                      width: 1,
+                    )
+                  : null,
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.4)
+                      : Colors.black.withOpacity(0.1),
+                  blurRadius: isDark ? 8 : 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Icon(Icons.share, color: Colors.black87),
+            child: Icon(
+              Icons.share,
+              color: theme.colorScheme.onSurface,
+              size: 22,
+            ),
           ),
           onPressed: () {
             // TODO: Share product
           },
         ),
+        spacerWidth(8),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           children: [
-            // Image carousel
+            // Image carousel with enhanced loading and error states
             PageView.builder(
               controller: _pageController,
               onPageChanged: _onImageChanged,
@@ -158,22 +234,32 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   imageUrl: allImages[index],
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: Colors.grey.shade100,
-                    child: const Center(child: CircularProgressIndicator()),
+                    color: isDark
+                        ? theme.colorScheme.surfaceContainerHighest
+                        : Colors.grey.shade100,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
                   ),
                   errorWidget: (context, url, error) => Container(
-                    color: Colors.grey.shade200,
-                    child: const Icon(
+                    color: isDark
+                        ? theme.colorScheme.surfaceContainerHighest
+                        : Colors.grey.shade200,
+                    child: Icon(
                       Icons.image,
                       size: 100,
-                      color: Colors.grey,
+                      color: isDark
+                          ? theme.colorScheme.onSurfaceVariant
+                          : Colors.grey,
                     ),
                   ),
                 );
               },
             ),
 
-            // Image indicators
+            // Enhanced image indicators with glow effect for dark mode
             if (allImages.length > 1)
               Positioned(
                 bottom: 16,
@@ -182,34 +268,63 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: allImages.asMap().entries.map((entry) {
+                    final isActive = _currentImageIndex == entry.key;
                     return Container(
-                      width: 8,
-                      height: 8,
+                      width: isActive ? 12 : 8,
+                      height: isActive ? 12 : 8,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _currentImageIndex == entry.key
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.5),
+                        color: isActive
+                            ? (isDark
+                                ? theme.colorScheme.primary
+                                : Colors.white)
+                            : (isDark
+                                ? Colors.white.withOpacity(0.4)
+                                : Colors.white.withOpacity(0.5)),
+                        boxShadow: isDark && isActive
+                            ? [
+                                BoxShadow(
+                                  color: theme.colorScheme.primary
+                                      .withOpacity(0.5),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ]
+                            : null,
                       ),
                     );
                   }).toList(),
                 ),
               ),
 
-            // Discount badge
+            // Enhanced discount badge with better dark mode styling
             if (product.discountPercentage > 0)
               Positioned(
                 top: 100,
                 right: 16,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                    horizontal: 12,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: isDark
+                        ? const LinearGradient(
+                            colors: [Color(0xFFFF6B6B), Color(0xFFEE5A24)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    color: isDark ? null : Colors.red,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(isDark ? 0.4 : 0.3),
+                        blurRadius: isDark ? 8 : 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Text(
                     '-${product.discountPercentage.toStringAsFixed(0)}%',
@@ -217,6 +332,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
@@ -228,85 +344,163 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildProductContent(ProductEntity product) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product title and rating
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  product.title,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        boxShadow: isDark
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
+                ),
+              ]
+            : [],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Drag handle for visual feedback
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withOpacity(0.3)
+                      : Colors.grey.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Product title and rating
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    product.title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                      height: 1.2,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              _buildRatingWidget(product.rating),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          // Brand and category
-          Row(
-            children: [
-              if (product.brand != null) ...[
-                Text(
-                  'Brand: ${product.brand}',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                ),
-                const SizedBox(width: 16),
+                spacerWidth(12),
+                _buildRatingWidget(product.rating),
               ],
-              Text(
-                'Category: ${product.category}',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-              ),
-            ],
+            ),
+
+            spacerHeight(12),
+
+            // Brand and category with enhanced styling
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: [
+                if (product.brand != null)
+                  _buildInfoChip(
+                    icon: Icons.business,
+                    label: 'Brand: ${product.brand}',
+                    theme: theme,
+                  ),
+                _buildInfoChip(
+                  icon: Icons.category,
+                  label: 'Category: ${product.category}',
+                  theme: theme,
+                ),
+              ],
+            ),
+
+            spacerHeight(20),
+
+            // Price section
+            _buildPriceSection(product),
+
+            spacerHeight(24),
+
+            // Stock and availability
+            _buildStockSection(product),
+
+            spacerHeight(24),
+
+            // Quantity selector
+            _buildQuantitySelector(),
+
+            spacerHeight(32),
+
+            // Product description
+            _buildDescriptionSection(product),
+
+            spacerHeight(24),
+
+            // Product details
+            _buildProductDetails(product),
+
+            spacerHeight(24),
+
+            // Reviews section
+            if (product.reviews != null && product.reviews!.isNotEmpty)
+              _buildReviewsSection(product.reviews!),
+
+            spacerHeight(100),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip({
+    required IconData icon,
+    required String label,
+    required ThemeData theme,
+  }) {
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isDark
+            ? theme.colorScheme.surfaceVariant.withOpacity(0.6)
+            : theme.colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(12),
+        border: isDark
+            ? Border.all(
+                color: Colors.white.withOpacity(0.08),
+                width: 1,
+              )
+            : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: isDark
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurfaceVariant,
           ),
-
-          const SizedBox(height: 16),
-
-          // Price section
-          _buildPriceSection(product),
-
-          const SizedBox(height: 24),
-
-          // Stock and availability
-          _buildStockSection(product),
-
-          const SizedBox(height: 24),
-
-          // Quantity selector
-          _buildQuantitySelector(),
-
-          const SizedBox(height: 24),
-
-          const SizedBox(height: 32),
-
-          // Product description
-          _buildDescriptionSection(product),
-
-          const SizedBox(height: 24),
-
-          // Product details
-          _buildProductDetails(product),
-
-          const SizedBox(height: 24),
-
-          // Reviews section
-          if (product.reviews != null && product.reviews!.isNotEmpty)
-            _buildReviewsSection(product.reviews!),
-
-          const SizedBox(
-            height: 100,
-          ), // Bottom padding for floating action button
+          spacerWidth(6),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -315,23 +509,53 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget _buildRatingWidget(double? rating) {
     if (rating == null) return const SizedBox.shrink();
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.amber.shade100,
-        borderRadius: BorderRadius.circular(12),
+        gradient: isDark
+            ? LinearGradient(
+                colors: [
+                  Colors.amber.withOpacity(0.2),
+                  Colors.orange.withOpacity(0.15),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: isDark ? null : Colors.amber.shade100,
+        borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? Border.all(
+                color: Colors.amber.withOpacity(0.3),
+                width: 1,
+              )
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withOpacity(isDark ? 0.2 : 0.1),
+            blurRadius: isDark ? 8 : 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star, size: 16, color: Colors.amber),
-          const SizedBox(width: 4),
+          Icon(
+            Icons.star_rounded,
+            size: 18,
+            color: isDark ? Colors.amber.shade300 : Colors.amber.shade700,
+          ),
+          spacerWidth(6),
           Text(
             rating.toStringAsFixed(1),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.amber.shade200 : Colors.amber.shade800,
             ),
           ),
         ],
@@ -351,11 +575,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
           ),
         ),
         if (hasDiscount) ...[
-          const SizedBox(width: 8),
+          spacerWidth(8),
           Text(
             '\$${product.price.toStringAsFixed(2)}',
             style: TextStyle(
@@ -364,7 +587,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               decoration: TextDecoration.lineThrough,
             ),
           ),
-          const SizedBox(width: 8),
+          spacerWidth(8),
           Text(
             'Save \$${(product.price - discountedPrice).toStringAsFixed(2)}',
             style: const TextStyle(
@@ -391,7 +614,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             color: inStock ? Colors.green : Colors.red,
           ),
         ),
-        const SizedBox(width: 8),
+        spacerWidth(8),
         Text(
           inStock ? 'In Stock (${product.stock} available)' : 'Out of Stock',
           style: TextStyle(
@@ -405,23 +628,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildQuantitySelector() {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Quantity',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: theme.colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 8),
+        spacerHeight(8),
         Row(
           children: [
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: theme.colorScheme.outline),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -438,9 +663,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       _quantity.toString(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -462,6 +688,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildAddToCartButton(ProductEntity product) {
+    final theme = Theme.of(context);
     final inStock = product.stock > 0;
 
     return Row(
@@ -510,13 +737,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       backgroundColor: isInWishlist
                           ? Colors.red
                           : (isLoading
-                              ? Colors.grey.shade300
-                              : Colors.grey.shade200),
+                              ? theme.colorScheme.surface
+                              : theme.colorScheme.surface),
                       foregroundColor: isInWishlist
                           ? Colors.white
                           : (isLoading
-                              ? Colors.grey.shade500
-                              : Colors.grey.shade600),
+                              ? theme.colorScheme.onSurface.withAlpha(100)
+                              : theme.colorScheme.onSurface),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -603,6 +830,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildSimpleAddToCartButton(ProductEntity product, bool inStock) {
+    final theme = Theme.of(context);
+
     return ElevatedButton(
       onPressed: inStock
           ? () {
@@ -614,7 +843,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             }
           : null,
       style: ElevatedButton.styleFrom(
-        backgroundColor: inStock ? Colors.blue : Colors.grey,
+        backgroundColor:
+            inStock ? theme.colorScheme.primary : theme.colorScheme.outline,
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -632,6 +863,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Widget _buildAddToCartButtonWithAuth(
       ProductEntity product, bool inStock, String userId) {
+    final theme = Theme.of(context);
+
     return ElevatedButton(
       onPressed: inStock
           ? () {
@@ -649,7 +882,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             }
           : null,
       style: ElevatedButton.styleFrom(
-        backgroundColor: inStock ? Colors.blue : Colors.grey,
+        backgroundColor:
+            inStock ? theme.colorScheme.primary : theme.colorScheme.outline,
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -776,15 +1011,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
+        spacerHeight(12),
         Text(
           product.description,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey.shade700,
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(200),
             height: 1.5,
           ),
         ),
@@ -793,6 +1027,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildProductDetails(ProductEntity product) {
+    final theme = Theme.of(context);
+
     final details = <String, String?>{
       'SKU': product.sku,
       'Weight': product.weight != null ? '${product.weight}g' : null,
@@ -815,15 +1051,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Product Details',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: theme.colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 12),
+        spacerHeight(12),
         ...validDetails.map(
           (entry) => Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -837,14 +1073,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
+                      color: theme.colorScheme.onSurface.withAlpha(180),
                     ),
                   ),
                 ),
                 Expanded(
                   child: Text(
                     entry.value!,
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: theme.colorScheme.onSurface.withAlpha(200)),
                   ),
                 ),
               ],
@@ -856,18 +1094,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildReviewsSection(List<ReviewEntity> reviews) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Reviews',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             TextButton(
@@ -878,20 +1118,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        spacerHeight(12),
         ...reviews.take(3).map((review) => _buildReviewCard(review)),
       ],
     );
   }
 
   Widget _buildReviewCard(ReviewEntity review) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: isDark ? theme.colorScheme.surface : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+            color: isDark ? theme.colorScheme.outline : Colors.grey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -900,41 +1144,44 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             children: [
               Text(
                 review.reviewerName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const Spacer(),
               Row(
                 children: [
                   const Icon(Icons.star, size: 16, color: Colors.amber),
-                  const SizedBox(width: 4),
+                  spacerWidth(4),
                   Text(
                     review.rating.toString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          spacerHeight(8),
           Text(
             review.comment ?? 'No comment provided',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade700,
+              color: theme.colorScheme.onSurface.withAlpha(180),
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 8),
+          spacerHeight(8),
           Text(
             review.date.toString().split(' ')[0], // Show only date part
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+            style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurface.withAlpha(150)),
           ),
         ],
       ),
@@ -942,20 +1189,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildErrorWidget(String message) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 48, color: theme.colorScheme.error),
+            spacerHeight(16),
             Text(
               message,
-              style: const TextStyle(fontSize: 16, color: Colors.red),
+              style: TextStyle(fontSize: 16, color: theme.colorScheme.error),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            spacerHeight(16),
             ElevatedButton(
               onPressed: () {
                 context.read<ProductBloc>().add(

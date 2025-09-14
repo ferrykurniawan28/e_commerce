@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 
 class CartSummaryWidget extends StatelessWidget {
   final int totalItems;
@@ -14,12 +15,17 @@ class CartSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: isDark
+                ? Colors.black.withOpacity(0.2)
+                : Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -44,7 +50,7 @@ class CartSummaryWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            spacerHeight(8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -60,7 +66,7 @@ class CartSummaryWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            spacerHeight(8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -91,12 +97,11 @@ class CartSummaryWidget extends StatelessWidget {
                   '\$${totalPrice.toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
                       ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            spacerHeight(16),
             // Checkout Button
             SizedBox(
               width: double.infinity,
@@ -108,29 +113,45 @@ class CartSummaryWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 2,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.shopping_bag_outlined),
-                    const SizedBox(width: 8),
+                    spacerWidth(8),
                     Text(
                       'Proceed to Checkout',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
+                            height: 1.2,
                           ),
+                      strutStyle: const StrutStyle(
+                        forceStrutHeight: true,
+                        height: 1.2,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            spacerHeight(8),
             Text(
               'Free shipping on orders over \$50',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.color
+                        ?.withOpacity(0.8),
+                    height: 1.2,
                   ),
+              strutStyle: const StrutStyle(
+                forceStrutHeight: true,
+                height: 1.2,
+              ),
             ),
           ],
         ),

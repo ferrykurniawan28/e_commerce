@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 
 class EmptyCartWidget extends StatelessWidget {
   const EmptyCartWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -14,25 +17,25 @@ class EmptyCartWidget extends StatelessWidget {
             Icon(
               Icons.shopping_cart_outlined,
               size: 120,
-              color: Colors.grey[300],
+              color: theme.colorScheme.onSurface.withOpacity(0.3),
             ),
-            const SizedBox(height: 24),
+            spacerHeight(24),
             Text(
               'Your cart is empty',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.8),
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            const SizedBox(height: 12),
+            spacerHeight(12),
             Text(
               'Looks like you haven\'t added\nanything to your cart yet',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[500],
-                  ),
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
-            const SizedBox(height: 32),
+            spacerHeight(32),
             ElevatedButton.icon(
               onPressed: () {
                 // Navigate to products or home

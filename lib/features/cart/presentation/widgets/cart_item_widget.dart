@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../domain/domain.dart';
@@ -15,175 +16,192 @@ class CartItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: item.thumbnail,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () {
+        // Navigate to product detail page
+        Navigator.of(context).pushNamed('/product/${item.productId}');
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withOpacity(0.2)
+                  : Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Product Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CachedNetworkImage(
+                  imageUrl: item.thumbnail,
                   width: 80,
                   height: 80,
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: CircularProgressIndicator(),
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 80,
+                    height: 80,
+                    color: isDark
+                        ? theme.colorScheme.surfaceContainerHighest
+                        : Colors.grey[200],
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 80,
-                  height: 80,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.error),
+                  errorWidget: (context, url, error) => Container(
+                    width: 80,
+                    height: 80,
+                    color: isDark
+                        ? theme.colorScheme.surfaceContainerHighest
+                        : Colors.grey[200],
+                    child: const Icon(Icons.error),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            // Product Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  // Price Information
-                  Row(
-                    children: [
-                      if (item.discountPercentage > 0) ...[
-                        Text(
-                          '\$${item.price.toStringAsFixed(2)}',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    decoration: TextDecoration.lineThrough,
-                                    color: Colors.grey[600],
-                                  ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      Text(
-                        '\$${item.discountedPrice.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      if (item.discountPercentage > 0) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
+              spacerWidth(12),
+              // Product Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '${item.discountPercentage.toInt()}% OFF',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // Quantity Controls and Total
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Quantity Controls
-                      Row(
-                        children: [
-                          _buildQuantityButton(
-                            context,
-                            item.quantity == 1 ? Icons.delete : Icons.remove,
-                            () => item.quantity == 1
-                                ? _removeFromCart(context)
-                                : _decrementQuantity(context),
-                            true, // Always enabled since delete is always available
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              '${item.quantity}',
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                          ),
-                          _buildQuantityButton(
-                            context,
-                            Icons.add,
-                            () => _incrementQuantity(context),
-                            true,
-                          ),
-                        ],
-                      ),
-                      // Total Price
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    spacerHeight(8),
+                    // Price Information
+                    Row(
+                      children: [
+                        if (item.discountPercentage > 0) ...[
                           Text(
-                            'Total',
+                            '\$${item.price.toStringAsFixed(2)}',
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      decoration: TextDecoration.lineThrough,
                                       color: Colors.grey[600],
                                     ),
                           ),
-                          Text(
-                            '\$${item.totalPrice.toStringAsFixed(2)}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).primaryColor,
-                                ),
+                          spacerWidth(8),
+                        ],
+                        Text(
+                          '\$${item.discountedPrice.toStringAsFixed(2)}',
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    // color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                        if (item.discountPercentage > 0) ...[
+                          spacerWidth(8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${item.discountPercentage.toInt()}% OFF',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    spacerHeight(12),
+                    // Quantity Controls and Total
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Quantity Controls
+                        Row(
+                          children: [
+                            _buildQuantityButton(
+                              context,
+                              item.quantity == 1 ? Icons.delete : Icons.remove,
+                              () => item.quantity == 1
+                                  ? _removeFromCart(context)
+                                  : _decrementQuantity(context),
+                              true, // Always enabled since delete is always available
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '${item.quantity}',
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                            ),
+                            _buildQuantityButton(
+                              context,
+                              Icons.add,
+                              () => _incrementQuantity(context),
+                              true,
+                            ),
+                          ],
+                        ),
+                        // Total Price
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Total',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                            ),
+                            Text(
+                              '\$${item.totalPrice.toStringAsFixed(2)}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

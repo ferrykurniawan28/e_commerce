@@ -196,18 +196,26 @@ class MainApp extends StatelessWidget {
           ),
         ],
         child: NetworkListener(
-          child: AdaptiveTheme(
-            light: AppTheme.lightTheme,
-            dark: AppTheme.darkTheme,
-            initial: savedThemeMode ?? AdaptiveThemeMode.system,
-            builder: (theme, darkTheme) => MaterialApp.router(
-              routerDelegate: Modular.routerDelegate,
-              routeInformationParser: Modular.routeInformationParser,
-              debugShowCheckedModeBanner: false,
-              theme: theme,
-              darkTheme: darkTheme,
-              title: 'E-Commerce App',
-            ),
+          child: Builder(
+            builder: (context) {
+              return AdaptiveTheme(
+                light: AppTheme.lightTheme,
+                dark: AppTheme.darkTheme,
+                initial: savedThemeMode ?? AdaptiveThemeMode.system,
+                builder: (theme, darkTheme) => MaterialApp.router(
+                  routerDelegate: Modular.routerDelegate,
+                  routeInformationParser: Modular.routeInformationParser,
+                  debugShowCheckedModeBanner: false,
+                  theme: theme,
+                  darkTheme: darkTheme,
+                  // themeAnimationCurve: Curves.bounceOut,
+                  // Disable built-in theme animations to avoid TextStyle
+                  // interpolation issues when switching themes rapidly.
+                  themeAnimationDuration: Duration.zero,
+                  title: 'E-Commerce App',
+                ),
+              );
+            },
           ),
         ),
       ),

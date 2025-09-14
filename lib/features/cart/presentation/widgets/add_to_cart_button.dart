@@ -76,7 +76,7 @@ class _AddToCartButtonState extends State<AddToCartButton>
               elevation: 2,
             ),
             icon: _isAdding
-                ? const SizedBox(
+                ? SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(

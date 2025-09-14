@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 
 class WishlistProductCard extends StatelessWidget {
   final dynamic wishlistProduct;
@@ -103,7 +104,7 @@ class WishlistProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              spacerWidth(16),
 
               // Product Details
               Expanded(
@@ -119,7 +120,7 @@ class WishlistProductCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
+                    spacerHeight(6),
                     if (product.brand != null)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -140,7 +141,7 @@ class WishlistProductCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    const SizedBox(height: 12),
+                    spacerHeight(12),
                     Row(
                       children: [
                         Text(
@@ -153,7 +154,7 @@ class WishlistProductCard extends StatelessWidget {
                           ),
                         ),
                         if (product.discountPercentage > 0) ...[
-                          const SizedBox(width: 8),
+                          spacerWidth(8),
                           Text(
                             '\$${(product.price / (1 - product.discountPercentage / 100)).toStringAsFixed(2)}',
                             style: theme.textTheme.bodyMedium?.copyWith(
@@ -161,7 +162,7 @@ class WishlistProductCard extends StatelessWidget {
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          spacerWidth(8),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -186,7 +187,7 @@ class WishlistProductCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    spacerHeight(8),
                     Text(
                       'Added ${_formatAddedDate(addedAt)}',
                       style: theme.textTheme.bodySmall?.copyWith(

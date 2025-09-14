@@ -2,6 +2,7 @@ import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dar
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_commerce/core/theme/widgets/index.dart';
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_commerce/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_modular/flutter_modular.dart';
@@ -12,10 +13,19 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const ValueKey('profile_scaffold'),
       appBar: const CustomAppBar(
         title: 'Profile',
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
+        listenWhen: (previous, current) {
+          // Only listen to auth state changes, not theme rebuilds
+          return previous.runtimeType != current.runtimeType;
+        },
+        buildWhen: (previous, current) {
+          // Only rebuild when auth state actually changes
+          return previous.runtimeType != current.runtimeType;
+        },
         listener: (context, state) {
           if (state is AuthUnauthenticated) {
             ReadContext(context)
@@ -27,12 +37,12 @@ class ProfilePage extends StatelessWidget {
         },
         builder: (context, authState) {
           if (authState is! AuthAuthenticated) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.person_outline, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
+                  spacerHeight(16),
                   Text(
                     'Please log in to view your profile',
                     style: TextStyle(
@@ -51,7 +61,7 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                const SizedBox(height: 20),
+                spacerHeight(20),
 
                 // Profile Avatar
                 Container(
@@ -90,7 +100,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                spacerHeight(20),
 
                 // User Name
                 Text(
@@ -101,7 +111,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                 ),
 
-                const SizedBox(height: 8),
+                spacerHeight(8),
 
                 // Email
                 Text(
@@ -114,7 +124,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                 ),
 
-                const SizedBox(height: 40),
+                spacerHeight(40),
 
                 // Profile Options
                 _buildProfileOption(
@@ -179,7 +189,7 @@ class ProfilePage extends StatelessWidget {
 
                 // Theme Toggle Section
                 Container(
-                  key: const Key('theme_toggle_container'),
+                  key: const ValueKey('profile_theme_toggle_container'),
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
@@ -191,10 +201,12 @@ class ProfilePage extends StatelessWidget {
                           .withOpacity(0.2),
                     ),
                   ),
-                  child: const ThemeToggleWidget(),
+                  child: const ThemeToggleWidget(
+                    key: ValueKey('profile_theme_toggle_widget'),
+                  ),
                 ),
 
-                const SizedBox(height: 20),
+                spacerHeight(20),
 
                 // Logout Button
                 SizedBox(
@@ -217,18 +229,18 @@ class ProfilePage extends StatelessWidget {
                         inherit: true,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.logout),
-                        SizedBox(width: 8),
+                        spacerWidth(8),
                         Text('Logout'),
                       ],
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                spacerHeight(40),
               ],
             ),
           );
@@ -278,7 +290,7 @@ class ProfilePage extends StatelessWidget {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: isDark
@@ -309,7 +321,7 @@ class ProfilePage extends StatelessWidget {
                         size: 24,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    spacerWidth(16),
                     Expanded(
                       child: Text(
                         title,
@@ -319,7 +331,7 @@ class ProfilePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    spacerWidth(8),
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(

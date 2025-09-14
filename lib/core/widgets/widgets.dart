@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:e_commerce/core/network/network_info.dart';
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';

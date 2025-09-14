@@ -21,6 +21,7 @@ class _ThemeToggleWidgetState extends State<ThemeToggleWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
+  bool _isChangingTheme = false;
 
   @override
   void initState() {
@@ -45,14 +46,29 @@ class _ThemeToggleWidgetState extends State<ThemeToggleWidget>
   }
 
   void _toggleTheme() {
+    // Prevent rapid theme toggles
+    if (_animationController.isAnimating || _isChangingTheme) return;
+
+    _isChangingTheme = true;
+
+    // Start rotation animation
     _animationController.forward().then((_) {
-      final adaptiveTheme = AdaptiveTheme.of(context);
-      if (adaptiveTheme.mode.isDark) {
-        adaptiveTheme.setLight();
-      } else {
-        adaptiveTheme.setDark();
+      // Only change theme after animation completes
+      if (mounted) {
+        final adaptiveTheme = AdaptiveTheme.of(context);
+        if (adaptiveTheme.mode.isDark) {
+          adaptiveTheme.setLight();
+        } else {
+          adaptiveTheme.setDark();
+        }
+
+        // Reverse animation and reset flag
+        _animationController.reverse().then((_) {
+          if (mounted) {
+            _isChangingTheme = false;
+          }
+        });
       }
-      _animationController.reverse();
     });
   }
 
@@ -86,7 +102,9 @@ class _ThemeToggleWidgetState extends State<ThemeToggleWidget>
 
     if (widget.showLabel) {
       return ListTile(
+        key: ValueKey('theme_toggle_list_${isDark.toString()}'),
         leading: AnimatedBuilder(
+          key: ValueKey('theme_list_animation_${isDark.toString()}'),
           animation: _rotationAnimation,
           builder: (context, child) {
             return Transform.rotate(
@@ -108,7 +126,7 @@ class _ThemeToggleWidgetState extends State<ThemeToggleWidget>
           style: theme.textTheme.bodyMedium,
         ),
         trailing: Switch.adaptive(
-          key: const Key('theme_toggle_switch'),
+          key: ValueKey('theme_toggle_switch_${isDark.toString()}'),
           value: isDark,
           onChanged: (_) => _toggleTheme(),
           activeColor: theme.colorScheme.primary,
@@ -118,8 +136,10 @@ class _ThemeToggleWidgetState extends State<ThemeToggleWidget>
     }
 
     return IconButton(
+      key: ValueKey('theme_toggle_icon_${adaptiveTheme.mode.name}'),
       onPressed: _toggleTheme,
       icon: AnimatedBuilder(
+        key: ValueKey('theme_icon_animation_${isDark.toString()}'),
         animation: _rotationAnimation,
         builder: (context, child) {
           return Transform.rotate(

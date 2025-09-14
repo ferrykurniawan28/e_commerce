@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/cart_bloc.dart';
 import '../widgets/cart_item_widget.dart';
@@ -33,15 +34,28 @@ class _CartPageState extends State<CartPage> {
               title: const Text('Cart'),
               centerTitle: true,
             ),
-            body: const Center(
+            body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.login, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
+                  Icon(
+                    Icons.login,
+                    size: 64,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                  ),
+                  spacerHeight(16),
                   Text(
                     'Please log in to view your cart',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6),
+                    ),
                   ),
                 ],
               ),
@@ -80,7 +94,7 @@ class _CartPageState extends State<CartPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(state.message),
-                    backgroundColor: Colors.red,
+                    backgroundColor: Theme.of(context).colorScheme.error,
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -103,20 +117,20 @@ class _CartPageState extends State<CartPage> {
                           Icon(
                             Icons.error_outline,
                             size: 64,
-                            color: Colors.red[300],
+                            color: Theme.of(context).colorScheme.error,
                           ),
-                          const SizedBox(height: 16),
+                          spacerHeight(16),
                           Text(
                             'Error loading cart',
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          const SizedBox(height: 8),
+                          spacerHeight(8),
                           Text(
                             state.message,
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
+                          spacerHeight(16),
                           ElevatedButton(
                             onPressed: () {
                               context.read<CartBloc>().add(
@@ -151,7 +165,7 @@ class _CartPageState extends State<CartPage> {
           child: ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: state.items.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            separatorBuilder: (context, index) => spacerHeight(12),
             itemBuilder: (context, index) {
               final item = state.items[index];
               return CartItemWidget(

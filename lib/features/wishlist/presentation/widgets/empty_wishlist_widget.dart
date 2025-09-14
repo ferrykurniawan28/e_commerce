@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:e_commerce/core/helpers/helpers.dart';
 
 class EmptyWishlistWidget extends StatelessWidget {
   const EmptyWishlistWidget({super.key});
@@ -14,7 +15,7 @@ class EmptyWishlistWidget extends StatelessWidget {
             size: 64,
             color: Colors.grey,
           ),
-          const SizedBox(height: 16),
+          spacerHeight(16),
           const Text(
             'Your wishlist is empty',
             style: TextStyle(
@@ -22,7 +23,7 @@ class EmptyWishlistWidget extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
-          const SizedBox(height: 8),
+          spacerHeight(8),
           const Text(
             'Add products you love to your wishlist',
             style: TextStyle(
@@ -30,7 +31,7 @@ class EmptyWishlistWidget extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
-          const SizedBox(height: 24),
+          spacerHeight(24),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Continue Shopping'),
