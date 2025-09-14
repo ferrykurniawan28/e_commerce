@@ -1,6 +1,7 @@
 // features/product/presentation/bloc/product_bloc.dart
 import 'package:bloc/bloc.dart';
 import 'package:e_commerce/core/errors/errors.dart';
+import 'package:e_commerce/core/services/hive_service.dart';
 import 'package:e_commerce/features/product/domain/entities/entities.dart';
 import 'package:e_commerce/features/product/domain/usecases/usecases.dart';
 import 'package:equatable/equatable.dart';
@@ -75,7 +76,49 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         ),
       );
     } on NetworkException catch (e) {
-      emit(ProductError(message: e.message, isNetworkError: true));
+      // Try to load from cache when network fails
+      try {
+        print('Network failed, trying cache...');
+
+        if (HiveService.hasProducts || HiveService.hasCategories) {
+          final cachedProducts = HiveService.hasProducts
+              ? HiveService.getCachedProducts()
+                  .map((model) => model.toEntity())
+                  .toList()
+              : <ProductEntity>[];
+
+          final cachedCategories = HiveService.hasCategories
+              ? HiveService.getCachedCategories()
+                  .map((name) => CategoryEntity(
+                      name: name,
+                      slug: name.toLowerCase().replaceAll(' ', '-'),
+                      url: ''))
+                  .toList()
+              : <CategoryEntity>[];
+
+          _allProducts.clear();
+          _allProducts.addAll(cachedProducts);
+          _currentSkip = cachedProducts.length;
+
+          emit(
+            ProductDataLoaded(
+              products: List.from(_allProducts),
+              categories: cachedCategories,
+              hasReachedMax: cachedProducts.length < _pageSize,
+            ),
+          );
+
+          print(
+              'Loaded ${cachedProducts.length} products and ${cachedCategories.length} categories from cache');
+        } else {
+          emit(ProductError(
+              message: 'No internet connection and no cached data available',
+              isNetworkError: true));
+        }
+      } catch (cacheError) {
+        print('Cache loading failed: $cacheError');
+        emit(ProductError(message: e.message, isNetworkError: true));
+      }
     } on ServerException catch (e) {
       emit(ProductError(message: e.message));
     } catch (e) {
@@ -105,9 +148,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
 
       if (event.isLoadMore) {
+        // For pagination, add new products to existing list
         _allProducts.addAll(products);
         _currentSkip += products.length;
       } else {
+        // For fresh load (category change, initial load), replace all products
+        _allProducts.clear();
         _allProducts.addAll(products);
         _currentSkip = event.skip + products.length;
       }

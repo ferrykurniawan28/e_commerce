@@ -26,6 +26,18 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _currentIndex = index;
           });
+
+          switch (index) {
+            case 0:
+              Modular.to.navigate('/home/');
+              break;
+            case 1:
+              Modular.to.navigate('/home/wishlist');
+              break;
+            case 2:
+              Modular.to.navigate('/home/profile');
+              break;
+          }
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.blue,
@@ -39,13 +51,13 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite_outline),
             activeIcon: Icon(Icons.favorite),
-            label: 'Favorites',
+            label: 'Wishlist',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag_outlined),
-            activeIcon: Icon(Icons.shopping_bag),
-            label: 'Orders',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.shopping_bag_outlined),
+          //   activeIcon: Icon(Icons.shopping_bag),
+          //   label: 'Orders',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),

@@ -23,10 +23,15 @@ class ProductRepositoryImpl implements ProductRepository {
           category: category,
         );
 
-        // Cache products if this is the first page and no category filter
+        // Cache products appropriately
         if (skip == 0 && category == null) {
+          // First page - replace all cached products
           await HiveService.cacheProducts(products);
-        }
+        } else if (category == null) {
+          // Pagination - add to existing cache
+          await HiveService.cacheAdditionalProducts(products);
+        } else {}
+        // Don't cache category-filtered products to avoid confusion
 
         return products.map((model) => model.toEntity()).toList();
       } catch (e) {
@@ -38,13 +43,36 @@ class ProductRepositoryImpl implements ProductRepository {
         rethrow;
       }
     } else {
-      // No network, get from cache
-      if (skip == 0 && category == null && HiveService.hasProducts) {
+      // No network - try to serve from cache with proper pagination
+      if (HiveService.hasProducts) {
         final cachedProducts = HiveService.getCachedProducts();
-        return cachedProducts.map((model) => model.toEntity()).toList();
+
+        // Filter by category if needed
+        List<ProductModel> filteredProducts = cachedProducts;
+        if (category != null) {
+          filteredProducts = cachedProducts
+              .where((product) =>
+                  product.category.toLowerCase() == category.toLowerCase())
+              .toList();
+        }
+
+        // Apply pagination to cached data
+        final totalCached = filteredProducts.length;
+
+        // If skip is beyond available data, return empty list
+        if (skip >= totalCached) {
+          return [];
+        }
+
+        // Calculate the slice of data to return
+        final endIndex = (skip + limit).clamp(0, totalCached);
+        final paginatedProducts = filteredProducts.sublist(skip, endIndex);
+
+        return paginatedProducts.map((model) => model.toEntity()).toList();
       }
+
       throw NetworkException(
-          message: 'No internet connection and no cached data');
+          message: 'No internet connection and no cached data available');
     }
   }
 
@@ -59,7 +87,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (await networkInfo.isConnected) {
       try {
         final product = await remoteDataSource.getProductById(id);
-        // Cache the product
+        // Cache the product (will update if exists)
         await HiveService.cacheProduct(product);
         return product.toEntity();
       } catch (e) {

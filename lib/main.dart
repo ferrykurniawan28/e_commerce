@@ -13,6 +13,10 @@ import 'package:e_commerce/features/product/data/repositories/repositories.dart'
 import 'package:e_commerce/features/product/domain/repositories/repositories.dart';
 import 'package:e_commerce/features/product/domain/usecases/usecases.dart';
 import 'package:e_commerce/features/product/presentation/bloc/product_bloc.dart';
+import 'package:e_commerce/features/wishlist/data/repositories/repositories.dart';
+import 'package:e_commerce/features/wishlist/domain/repositories/repositories.dart';
+import 'package:e_commerce/features/wishlist/domain/usecases/usecases.dart';
+import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dart';
 import 'package:e_commerce/firebase_options.dart';
 import 'package:e_commerce/routes/routes.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,6 +28,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await HiveService.init();
+
+  // DEBUG: Clear all Hive data on startup for debugging
+  // await HiveService.clearAllDataForDebug();
 
   runApp(ModularApp(module: AppRoutes(), child: const MainApp()));
 }
@@ -77,6 +84,9 @@ class MainApp extends StatelessWidget {
             networkInfo: RepositoryProvider.of<NetworkInfo>(context),
           ),
         ),
+        RepositoryProvider<WishlistRepository>(
+          create: (context) => WishlistRepositoryImpl(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -112,6 +122,34 @@ class MainApp extends StatelessWidget {
               ),
               getCategoriesUseCase: GetCategoriesUseCase(
                 repository: RepositoryProvider.of<CategoryRepository>(context),
+              ),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => WishlistBloc(
+              addToWishlistUseCase: AddToWishlistUseCase(
+                repository: RepositoryProvider.of<WishlistRepository>(context),
+              ),
+              removeFromWishlistUseCase: RemoveFromWishlistUseCase(
+                repository: RepositoryProvider.of<WishlistRepository>(context),
+              ),
+              getUserWishlistUseCase: GetUserWishlistUseCase(
+                repository: RepositoryProvider.of<WishlistRepository>(context),
+              ),
+              getWishlistWithProductsUseCase: GetWishlistWithProductsUseCase(
+                wishlistRepository:
+                    RepositoryProvider.of<WishlistRepository>(context),
+                productRepository:
+                    RepositoryProvider.of<ProductRepository>(context),
+              ),
+              isInWishlistUseCase: IsInWishlistUseCase(
+                repository: RepositoryProvider.of<WishlistRepository>(context),
+              ),
+              toggleWishlistUseCase: ToggleWishlistUseCase(
+                repository: RepositoryProvider.of<WishlistRepository>(context),
+              ),
+              clearUserWishlistUseCase: ClearUserWishlistUseCase(
+                repository: RepositoryProvider.of<WishlistRepository>(context),
               ),
             ),
           ),

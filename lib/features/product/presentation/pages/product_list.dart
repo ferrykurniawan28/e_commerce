@@ -269,7 +269,6 @@ class _ProductListState extends State<ProductList> {
               _isLoadingMore = false;
             });
           } else if (state is ProductError) {
-            print('Product Error: ${state.message}');
             setState(() {
               _isLoadingMore = false;
             });

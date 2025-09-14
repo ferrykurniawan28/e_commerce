@@ -3,7 +3,7 @@ part of 'utils.dart';
 class NetworkListener extends StatefulWidget {
   final Widget child;
 
-  const NetworkListener({Key? key, required this.child}) : super(key: key);
+  const NetworkListener({super.key, required this.child});
 
   @override
   _NetworkListenerState createState() => _NetworkListenerState();
