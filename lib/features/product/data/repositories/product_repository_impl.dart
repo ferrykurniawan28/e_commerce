@@ -16,24 +16,58 @@ class ProductRepositoryImpl implements ProductRepository {
     String? category,
   }) async {
     if (await networkInfo.isConnected) {
-      final products = await remoteDataSource.getProducts(
-        limit: limit,
-        skip: skip,
-        category: category,
-      );
-      return products.map((model) => model.toEntity()).toList();
+      try {
+        final products = await remoteDataSource.getProducts(
+          limit: limit,
+          skip: skip,
+          category: category,
+        );
+
+        // Cache products if this is the first page and no category filter
+        if (skip == 0 && category == null) {
+          await HiveService.cacheProducts(products);
+        }
+
+        return products.map((model) => model.toEntity()).toList();
+      } catch (e) {
+        // If network fails, try to get from cache
+        if (skip == 0 && category == null && HiveService.hasProducts) {
+          final cachedProducts = HiveService.getCachedProducts();
+          return cachedProducts.map((model) => model.toEntity()).toList();
+        }
+        rethrow;
+      }
     } else {
-      throw NetworkException(message: 'No internet connection');
+      // No network, get from cache
+      if (skip == 0 && category == null && HiveService.hasProducts) {
+        final cachedProducts = HiveService.getCachedProducts();
+        return cachedProducts.map((model) => model.toEntity()).toList();
+      }
+      throw NetworkException(
+          message: 'No internet connection and no cached data');
     }
   }
 
   @override
   Future<ProductEntity> getProductById(int id) async {
+    // First try to get from cache
+    final cachedProduct = HiveService.getCachedProduct(id);
+    if (cachedProduct != null) {
+      return cachedProduct.toEntity();
+    }
+
     if (await networkInfo.isConnected) {
-      final product = await remoteDataSource.getProductById(id);
-      return product.toEntity();
+      try {
+        final product = await remoteDataSource.getProductById(id);
+        // Cache the product
+        await HiveService.cacheProduct(product);
+        return product.toEntity();
+      } catch (e) {
+        rethrow;
+      }
     } else {
-      throw NetworkException(message: 'No internet connection');
+      throw NetworkException(
+          message: 'No internet connection and product not cached');
     }
   }
 
@@ -43,16 +77,46 @@ class ProductRepositoryImpl implements ProductRepository {
       final products = await remoteDataSource.searchProducts(query);
       return products.map((model) => model.toEntity()).toList();
     } else {
-      throw NetworkException(message: 'No internet connection');
+      // For search, we could implement basic local search on cached products
+      if (HiveService.hasProducts) {
+        final cachedProducts = HiveService.getCachedProducts();
+        final filteredProducts = cachedProducts
+            .where((product) =>
+                product.title.toLowerCase().contains(query.toLowerCase()) ||
+                product.description
+                    .toLowerCase()
+                    .contains(query.toLowerCase()) ||
+                product.category.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+        return filteredProducts.map((model) => model.toEntity()).toList();
+      }
+      throw NetworkException(
+          message: 'No internet connection and no cached data for search');
     }
   }
 
   @override
   Future<List<String>> getCategories() async {
     if (await networkInfo.isConnected) {
-      return await remoteDataSource.getCategories();
+      try {
+        final categories = await remoteDataSource.getCategories();
+        // Cache categories
+        await HiveService.cacheCategories(categories);
+        return categories;
+      } catch (e) {
+        // If network fails, try to get from cache
+        if (HiveService.hasCategories) {
+          return HiveService.getCachedCategories();
+        }
+        rethrow;
+      }
     } else {
-      throw NetworkException(message: 'No internet connection');
+      // No network, get from cache
+      if (HiveService.hasCategories) {
+        return HiveService.getCachedCategories();
+      }
+      throw NetworkException(
+          message: 'No internet connection and no cached categories');
     }
   }
 }

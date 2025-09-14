@@ -1,9 +1,14 @@
 part of 'models.dart';
 
+@HiveType(typeId: 2)
 class MetaModel extends Equatable {
+  @HiveField(0)
   final DateTime createdAt;
+  @HiveField(1)
   final DateTime updatedAt;
+  @HiveField(2)
   final String barcode;
+  @HiveField(3)
   final String qrCode;
 
   const MetaModel({

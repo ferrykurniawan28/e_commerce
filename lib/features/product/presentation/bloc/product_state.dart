@@ -23,10 +23,10 @@ class ProductLoading extends ProductState {
 
   @override
   List<Object> get props => [
-    isLoadingCategories,
-    isLoadingProducts,
-    isLoadMore,
-  ];
+        isLoadingCategories,
+        isLoadingProducts,
+        isLoadMore,
+      ];
 }
 
 class ProductDataLoaded extends ProductState {
@@ -35,6 +35,7 @@ class ProductDataLoaded extends ProductState {
   final bool hasReachedMax;
   final CategoryEntity? selectedCategory;
   final bool isSearching;
+  final bool isLoadMore;
 
   const ProductDataLoaded({
     required this.products,
@@ -42,6 +43,7 @@ class ProductDataLoaded extends ProductState {
     this.hasReachedMax = false,
     this.selectedCategory,
     this.isSearching = false,
+    this.isLoadMore = false,
   });
 
   ProductDataLoaded copyWith({
@@ -50,6 +52,7 @@ class ProductDataLoaded extends ProductState {
     bool? hasReachedMax,
     CategoryEntity? selectedCategory,
     bool? isSearching,
+    bool? isLoadMore,
   }) {
     return ProductDataLoaded(
       products: products ?? this.products,
@@ -57,17 +60,19 @@ class ProductDataLoaded extends ProductState {
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       isSearching: isSearching ?? this.isSearching,
+      isLoadMore: isLoadMore ?? this.isLoadMore,
     );
   }
 
   @override
   List<Object> get props => [
-    products,
-    categories,
-    hasReachedMax,
-    selectedCategory?.slug ?? '',
-    isSearching,
-  ];
+        products,
+        categories,
+        hasReachedMax,
+        selectedCategory?.slug ?? '',
+        isSearching,
+        isLoadMore,
+      ];
 }
 
 class ProductSearchLoaded extends ProductState {

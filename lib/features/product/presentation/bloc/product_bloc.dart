@@ -126,6 +126,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           products: List.from(_allProducts),
           categories: currentCategories,
           hasReachedMax: hasReachedMax,
+          isLoadMore: event.isLoadMore,
         ),
       );
     } on NetworkException catch (e) {
@@ -142,9 +143,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     Emitter<ProductState> emit,
   ) async {
     try {
-      if (state is! ProductDataLoaded) return;
+      // Get current categories from the previous state if available
+      List<CategoryEntity> currentCategories = [];
+      if (state is ProductDataLoaded) {
+        currentCategories = (state as ProductDataLoaded).categories;
+      }
 
-      final currentState = state as ProductDataLoaded;
       emit(ProductLoading(isLoadingProducts: true));
 
       _allProducts.clear();
@@ -161,8 +165,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       _currentSkip = products.length;
 
       emit(
-        currentState.copyWith(
+        ProductDataLoaded(
           products: List.from(_allProducts),
+          categories: currentCategories,
           selectedCategory: event.category,
           hasReachedMax: products.length < _pageSize,
         ),

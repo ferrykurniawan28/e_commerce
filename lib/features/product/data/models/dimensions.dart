@@ -1,8 +1,12 @@
 part of 'models.dart';
 
+@HiveType(typeId: 1)
 class DimensionsModel extends Equatable {
+  @HiveField(0)
   final double width;
+  @HiveField(1)
   final double height;
+  @HiveField(2)
   final double depth;
 
   const DimensionsModel({

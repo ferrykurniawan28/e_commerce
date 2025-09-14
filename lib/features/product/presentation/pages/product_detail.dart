@@ -22,10 +22,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    // Fetch product details
     context.read<ProductBloc>().add(
-      FetchProductByIdEvent(id: widget.productId),
-    );
+          FetchProductByIdEvent(id: widget.productId),
+        );
   }
 
   @override
@@ -87,9 +86,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildSliverAppBar(ProductEntity product) {
-    final allImages = product.images.isNotEmpty
-        ? product.images
-        : [product.thumbnail];
+    final allImages =
+        product.images.isNotEmpty ? product.images : [product.thumbnail];
 
     return SliverAppBar(
       expandedHeight: 300,
@@ -530,9 +528,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           : null,
     };
 
-    final validDetails = details.entries
-        .where((entry) => entry.value != null)
-        .toList();
+    final validDetails =
+        details.entries.where((entry) => entry.value != null).toList();
 
     if (validDetails.isEmpty) return const SizedBox.shrink();
 
@@ -683,8 +680,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ElevatedButton(
               onPressed: () {
                 context.read<ProductBloc>().add(
-                  FetchProductByIdEvent(id: widget.productId),
-                );
+                      FetchProductByIdEvent(id: widget.productId),
+                    );
               },
               child: const Text('Retry'),
             ),

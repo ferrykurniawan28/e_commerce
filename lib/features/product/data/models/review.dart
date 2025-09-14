@@ -1,10 +1,16 @@
 part of 'models.dart';
 
+@HiveType(typeId: 3)
 class ReviewModel extends Equatable {
+  @HiveField(0)
   final int rating;
+  @HiveField(1)
   final String comment;
+  @HiveField(2)
   final DateTime date;
+  @HiveField(3)
   final String reviewerName;
+  @HiveField(4)
   final String reviewerEmail;
 
   const ReviewModel({
@@ -47,10 +53,10 @@ class ReviewModel extends Equatable {
 
   @override
   List<Object> get props => [
-    rating,
-    comment,
-    date,
-    reviewerName,
-    reviewerEmail,
-  ];
+        rating,
+        comment,
+        date,
+        reviewerName,
+        reviewerEmail,
+      ];
 }

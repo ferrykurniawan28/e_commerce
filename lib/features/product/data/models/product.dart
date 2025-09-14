@@ -1,27 +1,50 @@
 part of 'models.dart';
 
+@HiveType(typeId: 0)
 class ProductModel extends Equatable {
+  @HiveField(0)
   final int id;
+  @HiveField(1)
   final String title;
+  @HiveField(2)
   final String description;
+  @HiveField(3)
   final String category;
+  @HiveField(4)
   final double price;
+  @HiveField(5)
   final double discountPercentage;
+  @HiveField(6)
   final double? rating;
+  @HiveField(7)
   final int stock;
+  @HiveField(8)
   final List<String> tags;
+  @HiveField(9)
   final String? brand;
+  @HiveField(10)
   final String? sku;
+  @HiveField(11)
   final int? weight;
+  @HiveField(12)
   final DimensionsModel? dimensions;
+  @HiveField(13)
   final String? warrantyInformation;
+  @HiveField(14)
   final String? shippingInformation;
+  @HiveField(15)
   final String? availabilityStatus;
+  @HiveField(16)
   final List<ReviewModel>? reviews;
+  @HiveField(17)
   final String? returnPolicy;
+  @HiveField(18)
   final int? minimumOrderQuantity;
+  @HiveField(19)
   final MetaModel? meta;
+  @HiveField(20)
   final String thumbnail;
+  @HiveField(21)
   final List<String> images;
 
   const ProductModel({
@@ -72,8 +95,8 @@ class ProductModel extends Equatable {
       availabilityStatus: json['availabilityStatus'],
       reviews: json['reviews'] != null
           ? (json['reviews'] as List)
-                .map((review) => ReviewModel.fromJson(review))
-                .toList()
+              .map((review) => ReviewModel.fromJson(review))
+              .toList()
           : null,
       returnPolicy: json['returnPolicy'],
       minimumOrderQuantity: json['minimumOrderQuantity'],
@@ -139,27 +162,27 @@ class ProductModel extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    title,
-    description,
-    category,
-    price,
-    discountPercentage,
-    rating,
-    stock,
-    tags,
-    brand,
-    sku,
-    weight,
-    dimensions,
-    warrantyInformation,
-    shippingInformation,
-    availabilityStatus,
-    reviews,
-    returnPolicy,
-    minimumOrderQuantity,
-    meta,
-    thumbnail,
-    images,
-  ];
+        id,
+        title,
+        description,
+        category,
+        price,
+        discountPercentage,
+        rating,
+        stock,
+        tags,
+        brand,
+        sku,
+        weight,
+        dimensions,
+        warrantyInformation,
+        shippingInformation,
+        availabilityStatus,
+        reviews,
+        returnPolicy,
+        minimumOrderQuantity,
+        meta,
+        thumbnail,
+        images,
+      ];
 }

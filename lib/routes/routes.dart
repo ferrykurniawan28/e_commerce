@@ -1,7 +1,8 @@
 import 'package:e_commerce/features/auth/presentation/pages/pages.dart';
 import 'package:e_commerce/features/home/presentation/pages/pages.dart';
-import 'package:e_commerce/features/product/presentation/pages/product_list.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+
+import '../features/product/presentation/pages/pages.dart';
 
 part 'auth.dart';
 
@@ -19,6 +20,11 @@ class AppRoutes extends Module {
         // ModuleRoute('/profile', module: ProfileModule()),
       ],
     );
-    // r.module('/home', module: HomeModule());
+    r.child('/product/:id', child: (context) {
+      final productId = int.parse(Modular.args.params['id']!);
+      print(
+          'Routes: Parsing productId = $productId from URL param: ${Modular.args.params['id']}');
+      return ProductDetailPage(productId: productId);
+    });
   }
 }

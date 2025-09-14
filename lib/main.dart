@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:e_commerce/core/network/network_info.dart';
+import 'package:e_commerce/core/services/hive_service.dart';
 import 'package:e_commerce/core/utils/utils.dart';
 import 'package:e_commerce/features/auth/data/datasources/auth_datasource_impl.dart';
 import 'package:e_commerce/features/auth/data/repositories/auth_reporistory_impl.dart';
@@ -22,6 +23,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await HiveService.init();
 
   runApp(ModularApp(module: AppRoutes(), child: const MainApp()));
 }
