@@ -53,11 +53,6 @@ class _HomePageState extends State<HomePage> {
             activeIcon: Icon(Icons.favorite),
             label: 'Wishlist',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.shopping_bag_outlined),
-          //   activeIcon: Icon(Icons.shopping_bag),
-          //   label: 'Orders',
-          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),

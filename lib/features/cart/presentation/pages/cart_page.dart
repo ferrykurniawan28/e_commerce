@@ -168,36 +168,4 @@ class _CartPageState extends State<CartPage> {
       ],
     );
   }
-
-  void _showClearCartDialog(BuildContext context, String userId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Clear Cart'),
-          content: const Text(
-            'Are you sure you want to remove all items from your cart?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                context.read<CartBloc>().add(
-                      ClearCartEvent(userId: userId),
-                    );
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text('Clear'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

@@ -15,14 +15,13 @@ class NetworkAwareWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<ConnectivityResult>>(
-      stream: context.read<NetworkInfo>().connectivityStream,
+      stream: ReadContext(context).read<NetworkInfo>().connectivityStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return loadingChild;
         }
 
-        final isConnected =
-            snapshot.data?.isNotEmpty == true &&
+        final isConnected = snapshot.data?.isNotEmpty == true &&
             !snapshot.data!.contains(ConnectivityResult.none);
 
         return isConnected ? onlineChild : offlineChild;
