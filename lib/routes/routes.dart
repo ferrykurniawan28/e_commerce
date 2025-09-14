@@ -1,5 +1,6 @@
 import 'package:e_commerce/features/auth/presentation/pages/pages.dart';
 import 'package:e_commerce/features/home/presentation/pages/pages.dart';
+import 'package:e_commerce/features/profile/presentation/profile.dart';
 import 'package:e_commerce/features/wishlist/presentation/pages/wishlist_page.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
@@ -18,14 +19,13 @@ class AppRoutes extends Module {
       children: [
         ChildRoute('/', child: (_) => const ProductList()),
         ChildRoute('/wishlist', child: (_) => const WishlistPage()),
+        ChildRoute('/profile', child: (_) => const ProfilePage()),
         // ModuleRoute('/cart', module: CartModule()),
         // ModuleRoute('/profile', module: ProfileModule()),
       ],
     );
     r.child('/product/:id', child: (context) {
       final productId = int.parse(Modular.args.params['id']!);
-      print(
-          'Routes: Parsing productId = $productId from URL param: ${Modular.args.params['id']}');
       return ProductDetailPage(productId: productId);
     });
   }

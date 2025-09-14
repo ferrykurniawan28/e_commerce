@@ -30,6 +30,7 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
     on<ToggleWishlistEvent>(_onToggleWishlist);
     on<ClearWishlistEvent>(_onClearWishlist);
     on<CheckWishlistStatusEvent>(_onCheckWishlistStatus);
+    on<ResetWishlistEvent>(_onResetWishlist);
   }
 
   Future<void> _onLoadWishlist(
@@ -182,5 +183,12 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
     } catch (e) {
       emit(WishlistError(message: e.toString()));
     }
+  }
+
+  void _onResetWishlist(
+    ResetWishlistEvent event,
+    Emitter<WishlistState> emit,
+  ) {
+    emit(WishlistInitial());
   }
 }

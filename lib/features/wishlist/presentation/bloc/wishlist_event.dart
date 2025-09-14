@@ -76,3 +76,10 @@ class CheckWishlistStatusEvent extends WishlistEvent {
   @override
   List<Object> get props => [productId, userId];
 }
+
+class ResetWishlistEvent extends WishlistEvent {
+  const ResetWishlistEvent();
+
+  @override
+  List<Object> get props => [];
+}
