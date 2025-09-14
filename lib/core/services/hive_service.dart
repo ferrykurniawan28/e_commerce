@@ -1,11 +1,13 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:e_commerce/features/product/data/models/models.dart';
 import 'package:e_commerce/features/wishlist/data/models/models.dart';
+import 'package:e_commerce/features/cart/data/models/models.dart';
 
 class HiveService {
   static const String _productsBoxName = 'products';
   static const String _categoriesBoxName = 'categories';
   static const String _wishlistBoxName = 'wishlist';
+  static const String _cartBoxName = 'cart';
 
   static Future<void> init() async {
     // Initialize Hive
@@ -27,17 +29,23 @@ class HiveService {
     if (!Hive.isAdapterRegistered(4)) {
       Hive.registerAdapter(WishlistItemModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(5)) {
+      Hive.registerAdapter(CartItemModelAdapter());
+    }
 
     // Open boxes
     await Hive.openBox<ProductModel>(_productsBoxName);
     await Hive.openBox<String>(_categoriesBoxName);
     await Hive.openBox<WishlistItemModel>(_wishlistBoxName);
+    await Hive.openBox<CartItemModel>(_cartBoxName);
   }
 
   // Product operations
   static Box<ProductModel> get productsBox =>
       Hive.box<ProductModel>(_productsBoxName);
   static Box<String> get categoriesBox => Hive.box<String>(_categoriesBoxName);
+  static Box<CartItemModel> get cartBox =>
+      Hive.box<CartItemModel>(_cartBoxName);
   static Box<WishlistItemModel> get wishlistBox =>
       Hive.box<WishlistItemModel>(_wishlistBoxName);
 
@@ -196,6 +204,94 @@ class HiveService {
         'HiveService: Cleared wishlist for user $userId (${keysToDelete.length} items)');
   }
 
+  // Cart operations
+  // Add item to cart
+  static Future<void> addToCart(CartItemModel item) async {
+    final box = cartBox;
+    // Use composite key: userId_productId to ensure uniqueness per user
+    final key = '${item.userId}_${item.productId}';
+    await box.put(key, item);
+    print(
+        'HiveService: Added product ${item.productId} to cart for user ${item.userId}');
+  }
+
+  // Remove item from cart
+  static Future<void> removeFromCart({
+    required String userId,
+    required int productId,
+  }) async {
+    final box = cartBox;
+    final key = '${userId}_${productId}';
+    await box.delete(key);
+    print('HiveService: Removed product $productId from cart for user $userId');
+  }
+
+  // Get user's cart items
+  static List<CartItemModel> getUserCart(String userId) {
+    final box = cartBox;
+    return box.values.where((item) => item.userId == userId).toList()
+      ..sort((a, b) => b.addedAt.compareTo(a.addedAt)); // Sort by newest first
+  }
+
+  // Check if product is in user's cart
+  static bool isInCart({
+    required String userId,
+    required int productId,
+  }) {
+    final box = cartBox;
+    final key = '${userId}_${productId}';
+    return box.containsKey(key);
+  }
+
+  // Get cart item
+  static CartItemModel? getCartItem({
+    required String userId,
+    required int productId,
+  }) {
+    final box = cartBox;
+    final key = '${userId}_${productId}';
+    return box.get(key);
+  }
+
+  // Update cart item
+  static Future<void> updateCartItem(CartItemModel item) async {
+    final box = cartBox;
+    final key = '${item.userId}_${item.productId}';
+    await box.put(key, item);
+    print(
+        'HiveService: Updated product ${item.productId} in cart for user ${item.userId}');
+  }
+
+  // Clear user's cart (when user logs out or clears cart)
+  static Future<void> clearUserCart(String userId) async {
+    final box = cartBox;
+    final keysToDelete = <String>[];
+
+    for (final key in box.keys) {
+      final item = box.get(key);
+      if (item != null && item.userId == userId) {
+        keysToDelete.add(key.toString());
+      }
+    }
+
+    await box.deleteAll(keysToDelete);
+    print(
+        'HiveService: Cleared cart for user $userId (${keysToDelete.length} items)');
+  }
+
+  // Get cart item count for user
+  static int getCartItemCount(String userId) {
+    final box = cartBox;
+    return box.values.where((item) => item.userId == userId).length;
+  }
+
+  // Get total quantity in cart for user
+  static int getTotalCartQuantity(String userId) {
+    final box = cartBox;
+    final userItems = box.values.where((item) => item.userId == userId);
+    return userItems.fold(0, (total, item) => total + item.quantity);
+  }
+
   // Check if cache is empty
   static bool get hasProducts => productsBox.isNotEmpty;
   static bool get hasCategories => categoriesBox.isNotEmpty;
@@ -208,11 +304,12 @@ class HiveService {
     await categoriesBox.clear();
   }
 
-  // Clear all cache including wishlist
+  // Clear all cache including wishlist and cart
   static Future<void> clearAllCache() async {
     await productsBox.clear();
     await categoriesBox.clear();
     await wishlistBox.clear();
+    await cartBox.clear();
   }
 
   // DEBUG ONLY: Clear all data on startup
@@ -221,6 +318,7 @@ class HiveService {
     await productsBox.clear();
     await categoriesBox.clear();
     await wishlistBox.clear();
+    await cartBox.clear();
     print('DEBUG: All Hive data cleared!');
   }
 

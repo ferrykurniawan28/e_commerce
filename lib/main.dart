@@ -17,6 +17,10 @@ import 'package:e_commerce/features/wishlist/data/repositories/repositories.dart
 import 'package:e_commerce/features/wishlist/domain/repositories/repositories.dart';
 import 'package:e_commerce/features/wishlist/domain/usecases/usecases.dart';
 import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dart';
+import 'package:e_commerce/features/cart/data/repositories/repositories.dart';
+import 'package:e_commerce/features/cart/domain/repositories/repositories.dart';
+import 'package:e_commerce/features/cart/domain/usecases/usecases.dart';
+import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_commerce/firebase_options.dart';
 import 'package:e_commerce/routes/routes.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -87,6 +91,9 @@ class MainApp extends StatelessWidget {
         RepositoryProvider<WishlistRepository>(
           create: (context) => WishlistRepositoryImpl(),
         ),
+        RepositoryProvider<CartRepository>(
+          create: (context) => CartRepositoryImpl(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -150,6 +157,31 @@ class MainApp extends StatelessWidget {
               ),
               clearUserWishlistUseCase: ClearUserWishlistUseCase(
                 repository: RepositoryProvider.of<WishlistRepository>(context),
+              ),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => CartBloc(
+              addToCartUseCase: AddToCartUseCase(
+                repository: RepositoryProvider.of<CartRepository>(context),
+              ),
+              removeFromCartUseCase: RemoveFromCartUseCase(
+                repository: RepositoryProvider.of<CartRepository>(context),
+              ),
+              updateCartItemQuantityUseCase: UpdateCartItemQuantityUseCase(
+                repository: RepositoryProvider.of<CartRepository>(context),
+              ),
+              getCartItemsUseCase: GetCartItemsUseCase(
+                repository: RepositoryProvider.of<CartRepository>(context),
+              ),
+              clearCartUseCase: ClearCartUseCase(
+                repository: RepositoryProvider.of<CartRepository>(context),
+              ),
+              getCartItemCountUseCase: GetCartItemCountUseCase(
+                repository: RepositoryProvider.of<CartRepository>(context),
+              ),
+              checkItemInCartUseCase: CheckItemInCartUseCase(
+                repository: RepositoryProvider.of<CartRepository>(context),
               ),
             ),
           ),

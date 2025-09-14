@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerce/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_commerce/features/product/domain/entities/entities.dart';
 import 'package:e_commerce/features/product/presentation/bloc/product_bloc.dart';
 import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dart';
@@ -28,11 +29,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           FetchProductByIdEvent(id: widget.productId),
         );
 
-    // Load wishlist to check if this product is in wishlist
+    // Load wishlist and cart to check product status
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
       context.read<WishlistBloc>().add(
             LoadWishlistEvent(userId: authState.user.id),
+          );
+      context.read<CartBloc>().add(
+            LoadCartEvent(userId: authState.user.id),
           );
     }
   }
@@ -457,96 +461,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  // Widget _buildActionButtons(ProductEntity product) {
-  //   return Row(
-  //     children: [
-  //       // Wishlist button
-  //       BlocBuilder<AuthBloc, AuthState>(
-  //         builder: (context, authState) {
-  //           if (authState is! AuthAuthenticated) {
-  //             return const SizedBox.shrink();
-  //           }
-
-  //           return BlocBuilder<WishlistBloc, WishlistState>(
-  //             builder: (context, wishlistState) {
-  //               bool isInWishlist = false;
-  //               bool isLoading = wishlistState is WishlistLoading;
-
-  //               // Check wishlist status from different state types
-  //               if (wishlistState is WishlistLoaded ||
-  //                   wishlistState is WishlistItemAdded ||
-  //                   wishlistState is WishlistItemRemoved) {
-  //                 final statusMap = switch (wishlistState) {
-  //                   WishlistLoaded state => state.wishlistStatus,
-  //                   WishlistItemAdded state => state.wishlistStatus,
-  //                   WishlistItemRemoved state => state.wishlistStatus,
-  //                   _ => <int, bool>{},
-  //                 };
-  //                 isInWishlist = statusMap[product.id] ?? false;
-  //               }
-
-  //               return Container(
-  //                 width: 60,
-  //                 height: 56,
-  //                 margin: const EdgeInsets.only(right: 12),
-  //                 child: ElevatedButton(
-  //                   onPressed: isLoading
-  //                       ? null
-  //                       : () {
-  //                           context.read<WishlistBloc>().add(
-  //                                 ToggleWishlistEvent(
-  //                                   userId: authState.user.id,
-  //                                   productId: product.id,
-  //                                 ),
-  //                               );
-  //                         },
-  //                   style: ElevatedButton.styleFrom(
-  //                     backgroundColor: isInWishlist
-  //                         ? Colors.red
-  //                         : (isLoading
-  //                             ? Colors.grey.shade300
-  //                             : Colors.grey.shade200),
-  //                     foregroundColor: isInWishlist
-  //                         ? Colors.white
-  //                         : (isLoading
-  //                             ? Colors.grey.shade500
-  //                             : Colors.grey.shade600),
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(12),
-  //                     ),
-  //                     padding: EdgeInsets.zero,
-  //                   ),
-  //                   child: isLoading
-  //                       ? const SizedBox(
-  //                           width: 20,
-  //                           height: 20,
-  //                           child: CircularProgressIndicator(
-  //                             strokeWidth: 2,
-  //                             valueColor:
-  //                                 AlwaysStoppedAnimation<Color>(Colors.grey),
-  //                           ),
-  //                         )
-  //                       : Icon(
-  //                           isInWishlist
-  //                               ? Icons.favorite
-  //                               : Icons.favorite_border,
-  //                           size: 24,
-  //                         ),
-  //                 ),
-  //               );
-  //             },
-  //           );
-  //         },
-  //       ),
-
-  //       // Add to cart button (expanded to take remaining space)
-  //       Expanded(
-  //         child: _buildAddToCartButton(product),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildAddToCartButton(ProductEntity product) {
     final inStock = product.stock > 0;
 
@@ -631,42 +545,226 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           },
         ),
 
-        // Add to cart button (expanded to take remaining space)
+        // Add to cart button or quantity controls
         Expanded(
           child: SizedBox(
             height: 56,
-            child: ElevatedButton(
-              onPressed: inStock
-                  ? () {
-                      // TODO: Add to cart functionality
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content:
-                              Text('Added $_quantity ${product.title} to cart'),
-                          backgroundColor: Colors.green,
-                        ),
+            child: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                if (authState is! AuthAuthenticated) {
+                  return _buildSimpleAddToCartButton(product, inStock);
+                }
+
+                return BlocBuilder<CartBloc, CartState>(
+                  builder: (context, cartState) {
+                    int currentQuantity = 0;
+
+                    // Check if product is in cart
+                    if (cartState is CartLoaded) {
+                      final cartItems = cartState.items.where(
+                        (item) => item.productId == product.id,
                       );
+                      if (cartItems.isNotEmpty) {
+                        currentQuantity = cartItems.first.quantity;
+                      }
                     }
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: inStock ? Colors.blue : Colors.grey,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                inStock ? 'Add to Cart' : 'Out of Stock',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
+
+                    return BlocListener<CartBloc, CartState>(
+                      listener: (context, state) {
+                        if (state is CartError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(state.message)),
+                          );
+                        } else if (state is CartItemAdded) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Item added to cart')),
+                          );
+                        } else if (state is CartItemRemoved) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Item removed from cart')),
+                          );
+                        }
+                      },
+                      child: currentQuantity > 0
+                          ? _buildQuantityControls(
+                              product, currentQuantity, authState.user.id)
+                          : _buildAddToCartButtonWithAuth(
+                              product, inStock, authState.user.id),
+                    );
+                  },
+                );
+              },
             ),
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildSimpleAddToCartButton(ProductEntity product, bool inStock) {
+    return ElevatedButton(
+      onPressed: inStock
+          ? () {
+              // Show login prompt or handle unauthenticated user
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Please login to add items to cart')),
+              );
+            }
+          : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: inStock ? Colors.blue : Colors.grey,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Text(
+        inStock ? 'Add to Cart' : 'Out of Stock',
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddToCartButtonWithAuth(
+      ProductEntity product, bool inStock, String userId) {
+    return ElevatedButton(
+      onPressed: inStock
+          ? () {
+              context.read<CartBloc>().add(
+                    AddToCartEvent(
+                      userId: userId,
+                      productId: product.id,
+                      title: product.title,
+                      thumbnail: product.thumbnail,
+                      price: product.price,
+                      discountPercentage: product.discountPercentage,
+                      quantity: _quantity,
+                    ),
+                  );
+            }
+          : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: inStock ? Colors.blue : Colors.grey,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Text(
+        inStock ? 'Add to Cart' : 'Out of Stock',
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuantityControls(
+      ProductEntity product, int currentQuantity, String userId) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blue, width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          _buildQuantityButton(
+            context,
+            currentQuantity == 1 ? Icons.delete : Icons.remove,
+            () => _decrementCartQuantity(product, currentQuantity, userId),
+            true,
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                currentQuantity.toString(),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          _buildQuantityButton(
+            context,
+            Icons.add,
+            () => _incrementCartQuantity(product, currentQuantity, userId),
+            currentQuantity < product.stock,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuantityButton(
+    BuildContext context,
+    IconData icon,
+    VoidCallback onPressed,
+    bool enabled,
+  ) {
+    return Container(
+      width: 48,
+      height: 52,
+      decoration: BoxDecoration(
+        color: enabled ? Colors.blue.shade50 : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: enabled ? onPressed : null,
+          child: Icon(
+            icon,
+            size: 20,
+            color: enabled ? Colors.blue : Colors.grey.shade400,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _incrementCartQuantity(
+      ProductEntity product, int currentQuantity, String userId) {
+    if (currentQuantity < product.stock) {
+      context.read<CartBloc>().add(
+            UpdateCartItemQuantityEvent(
+              userId: userId,
+              productId: product.id,
+              quantity: currentQuantity + 1,
+            ),
+          );
+    }
+  }
+
+  void _decrementCartQuantity(
+      ProductEntity product, int currentQuantity, String userId) {
+    if (currentQuantity > 1) {
+      context.read<CartBloc>().add(
+            UpdateCartItemQuantityEvent(
+              userId: userId,
+              productId: product.id,
+              quantity: currentQuantity - 1,
+            ),
+          );
+    } else {
+      // Remove from cart when quantity is 1
+      context.read<CartBloc>().add(
+            RemoveFromCartEvent(
+              userId: userId,
+              productId: product.id,
+            ),
+          );
+    }
   }
 
   Widget _buildDescriptionSection(ProductEntity product) {

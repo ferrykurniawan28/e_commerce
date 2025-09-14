@@ -1,4 +1,5 @@
 import 'package:e_commerce/features/wishlist/presentation/bloc/wishlist_bloc.dart';
+import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_commerce/features/auth/presentation/bloc/auth_bloc.dart';
@@ -23,6 +24,7 @@ class ProfilePage extends StatelessWidget {
             ReadContext(context)
                 .read<WishlistBloc>()
                 .add(const ResetWishlistEvent());
+            ReadContext(context).read<CartBloc>().add(const ResetCartEvent());
             Modular.to.navigate('/auth/login');
           }
         },

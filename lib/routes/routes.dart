@@ -1,4 +1,5 @@
 import 'package:e_commerce/features/auth/presentation/pages/pages.dart';
+import 'package:e_commerce/features/cart/presentation/presentation.dart';
 import 'package:e_commerce/features/home/presentation/pages/pages.dart';
 import 'package:e_commerce/features/profile/presentation/profile.dart';
 import 'package:e_commerce/features/wishlist/presentation/pages/wishlist_page.dart';
@@ -27,6 +28,9 @@ class AppRoutes extends Module {
     r.child('/product/:id', child: (context) {
       final productId = int.parse(Modular.args.params['id']!);
       return ProductDetailPage(productId: productId);
+    });
+    r.child('/cart', child: (context) {
+      return CartPage();
     });
   }
 }

@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerce/core/helpers/helpers.dart';
+import 'package:e_commerce/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_commerce/features/product/domain/entities/entities.dart';
 import 'package:e_commerce/features/product/presentation/bloc/product_bloc.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +41,9 @@ class _ProductListState extends State<ProductList> {
 
     // Trigger initial data fetch
     ReadContext(context).read<ProductBloc>().add(FetchInitialDataEvent());
+
+    // Load cart data to get cart count
+    _loadCartData();
   }
 
   @override
@@ -54,6 +59,8 @@ class _ProductListState extends State<ProductList> {
         _hasMoreData = true;
       });
       ReadContext(context).read<ProductBloc>().add(FetchInitialDataEvent());
+      // Also reload cart data when returning to this page
+      _loadCartData();
     }
   }
 
@@ -96,6 +103,15 @@ class _ProductListState extends State<ProductList> {
             isLoadMore: true,
           ),
         );
+  }
+
+  void _loadCartData() {
+    final authState = ReadContext(context).read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      ReadContext(context).read<CartBloc>().add(
+            LoadCartEvent(userId: authState.user.id),
+          );
+    }
   }
 
   Future<void> _onRefresh() async {
@@ -212,13 +228,45 @@ class _ProductListState extends State<ProductList> {
         elevation: 0,
         title: _buildSearchField(),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.shopping_cart_outlined,
-              color: Colors.black87,
-            ),
-            onPressed: () {
-              // Navigate to cart page
+          BlocBuilder<CartBloc, CartState>(
+            builder: (context, cartState) {
+              int cartCount = 0;
+              if (cartState is CartLoaded) {
+                cartCount = cartState.items.fold<int>(
+                  0,
+                  (sum, item) => sum + item.quantity,
+                );
+              }
+
+              return Stack(
+                children: [
+                  if (cartCount > 0)
+                    Positioned(
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          cartCount > 99 ? '99+' : cartCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.black87,
+                    ),
+                    onPressed: () => Modular.to.pushNamed('/cart'),
+                  ),
+                ],
+              );
             },
           ),
           IconButton(
