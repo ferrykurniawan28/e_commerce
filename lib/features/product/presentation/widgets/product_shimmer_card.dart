@@ -7,16 +7,19 @@ class ProductShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+      highlightColor: isDark ? Colors.grey.shade600 : Colors.grey.shade100,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
+              color: theme.shadowColor.withValues(alpha: isDark ? 0.3 : 0.1),
               spreadRadius: 1,
               blurRadius: 6,
               offset: const Offset(0, 2),
@@ -31,9 +34,10 @@ class ProductShimmerCard extends StatelessWidget {
               flex: 3,
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(12)),
                 ),
               ),
             ),
@@ -49,21 +53,30 @@ class ProductShimmerCard extends StatelessWidget {
                     Container(
                       height: 14,
                       width: double.infinity,
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     spacerHeight(6),
                     // Price shimmer
                     Container(
                       height: 16,
                       width: 80,
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                     spacerHeight(6),
                     // Rating shimmer
                     Container(
                       height: 12,
                       width: 60,
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ],
                 ),

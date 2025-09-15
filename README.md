@@ -121,15 +121,6 @@ Experience the app in both Light and Dark themes:
   </tr>
 </table>
 
-### Screen Recordings
-<!-- Add your screen recordings here -->
-- **App Demo**: [Link to full app demo video](recordings/app_demo.mp4)
-- **Theme Switching**: [Dark/Light theme transition](recordings/theme_switch.mp4)
-- **Shopping Flow**: [Add to cart and checkout process](recordings/shopping_flow.mp4)
-- **Search & Filter**: [Product search and filtering demo](recordings/search_filter.mp4)
-
-> **Note**: Replace the placeholder links above with actual screenshots and recordings of your app.
-
 ## 🏗️ Architecture & Technical Implementation
 
 ### Clean Architecture
@@ -167,7 +158,7 @@ lib/
 ### Key Design Patterns
 - **Repository Pattern**: Abstracts data sources from business logic
 - **Use Case Pattern**: Encapsulates specific business operations
-- **Dependency Injection**: Using `flutter_modular` for dependency management
+- **Dependency Injection**: Using `flutter_bloc`'s `RepositoryProvider` and `MultiBlocProvider`
 - **Observer Pattern**: BLoC for state observation and UI updates
 
 ## 📦 Key Dependencies
@@ -181,8 +172,8 @@ lib/
 - **bloc**: ^9.0.0 - Core BLoC library
 - **equatable**: ^2.0.7 - Value equality comparisons
 
-### Dependency Injection & Navigation
-- **flutter_modular**: ^6.4.1 - Modular dependency injection and routing
+### Navigation & Routing
+- **flutter_modular**: ^6.4.1 - Declarative routing and navigation
 
 ### Data & Storage
 - **hive**: ^2.2.3 - Local NoSQL database
@@ -359,20 +350,21 @@ features/
 - Fall back to cached data when offline
 - Implement cache strategies for different data types
 
-### 5. Dependency Injection with Flutter Modular
+### 5. Dependency Injection with Flutter BLoC
 
-**Decision**: Use flutter_modular for dependency injection and routing
+**Decision**: Use `flutter_bloc`'s built-in dependency injection with `RepositoryProvider` and `MultiBlocProvider`
 
 **Rationale**:
-- **Testability**: Easy to mock dependencies for testing
-- **Loose Coupling**: Components depend on abstractions, not implementations
-- **Configuration**: Centralized dependency configuration
-- **Lazy Loading**: Dependencies are created only when needed
+- **Testability**: Easy to mock repositories and use cases for testing BLoCs
+- **Loose Coupling**: BLoCs depend on repository interfaces, not implementations
+- **Integration**: Perfect integration with BLoC state management
+- **Simplicity**: No additional DI framework needed when using BLoC pattern
 
 **Implementation**:
-- Each feature module defines its dependencies
-- Repositories, use cases, and BLoCs are injected
-- Routes are defined alongside their dependencies
+- `MultiRepositoryProvider` manages all repository dependencies
+- `MultiBlocProvider` creates BLoCs with injected dependencies
+- Each BLoC receives its required use cases through constructor injection
+- Repositories are injected into use cases at creation time
 
 ### 6. Firebase for Authentication
 
@@ -423,7 +415,7 @@ features/
 - Adaptive components that respond to theme changes
 - Consistent spacing and typography systems
 
-## 🧪 Testing Strategy
+<!-- ## 🧪 Testing Strategy
 
 The app includes comprehensive testing at multiple levels:
 
@@ -447,16 +439,16 @@ test/
 ├── product/
 ├── cart/
 └── wishlist/
-```
+``` -->
 
-## 📱 Supported Platforms
+<!-- ## 📱 Supported Platforms
 
 - **Android**: API level 21+ (Android 5.0+)
 - **iOS**: iOS 11.0+
 - **Web**: Modern browsers (planned)
-- **Desktop**: Windows, macOS, Linux (future consideration)
+- **Desktop**: Windows, macOS, Linux (future consideration) -->
 
-## 🔮 Future Enhancements
+<!-- ## 🔮 Future Enhancements
 
 ### Planned Features
 - **Payment Integration**: Stripe, PayPal integration
@@ -472,7 +464,7 @@ test/
 - **Performance**: Image optimization and caching strategies
 - **Security**: API security enhancements
 - **CI/CD**: Automated testing and deployment pipelines
-- **Monitoring**: Crash reporting and performance monitoring
+- **Monitoring**: Crash reporting and performance monitoring -->
 
 ## 🤝 Contributing
 
@@ -483,10 +475,10 @@ test/
 5. Commit changes (`git commit -m 'Add amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
-
+<!-- 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. -->
 
 ## 👨‍💻 Author
 
