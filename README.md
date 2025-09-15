@@ -25,40 +25,98 @@ A modern, feature-rich e-commerce mobile application built with Flutter, impleme
 ## 📱 Screenshots & Demo
 
 ### App Screenshots
-<!-- Add your app screenshots here -->
+Experience the app in both Light and Dark themes:
+
+#### 🌅 Splash & Authentication
 <table>
   <tr>
     <td align="center">
-      <img src="screenshots/home_screen.png" width="250" alt="Home Screen">
+      <img src=".github/splash-light.png" width="200" alt="Splash Light">
       <br>
-      <sub><b>Home Screen</b></sub>
+      <sub><b>Splash (Light)</b></sub>
     </td>
     <td align="center">
-      <img src="screenshots/product_details.png" width="250" alt="Product Details">
+      <img src=".github/splash-dark.png" width="200" alt="Splash Dark">
       <br>
-      <sub><b>Product Details</b></sub>
+      <sub><b>Splash (Dark)</b></sub>
     </td>
     <td align="center">
-      <img src="screenshots/cart_screen.png" width="250" alt="Shopping Cart">
+      <img src=".github/login-light.png" width="200" alt="Login Light">
       <br>
-      <sub><b>Shopping Cart</b></sub>
+      <sub><b>Login (Light)</b></sub>
+    </td>
+    <td align="center">
+      <img src=".github/login-dark.png" width="200" alt="Login Dark">
+      <br>
+      <sub><b>Login (Dark)</b></sub>
     </td>
   </tr>
+</table>
+
+#### 🏠 Home & Product Browsing
+<table>
   <tr>
     <td align="center">
-      <img src="screenshots/wishlist_screen.png" width="250" alt="Wishlist">
+      <img src=".github/home-light.png" width="200" alt="Home Light">
       <br>
-      <sub><b>Wishlist</b></sub>
+      <sub><b>Home (Light)</b></sub>
     </td>
     <td align="center">
-      <img src="screenshots/profile_screen.png" width="250" alt="Profile">
+      <img src=".github/home-dark.png" width="200" alt="Home Dark">
       <br>
-      <sub><b>Profile</b></sub>
+      <sub><b>Home (Dark)</b></sub>
     </td>
     <td align="center">
-      <img src="screenshots/theme_comparison.png" width="250" alt="Light/Dark Theme">
+      <img src=".github/product-light.png" width="200" alt="Product Light">
       <br>
-      <sub><b>Light/Dark Theme</b></sub>
+      <sub><b>Product Details (Light)</b></sub>
+    </td>
+    <td align="center">
+      <img src=".github/product-dark.png" width="200" alt="Product Dark">
+      <br>
+      <sub><b>Product Details (Dark)</b></sub>
+    </td>
+  </tr>
+</table>
+
+#### 🛒 Shopping & Wishlist
+<table>
+  <tr>
+    <td align="center">
+      <img src=".github/cart-light.png" width="200" alt="Cart Light">
+      <br>
+      <sub><b>Shopping Cart (Light)</b></sub>
+    </td>
+    <td align="center">
+      <img src=".github/cart-dark.png" width="200" alt="Cart Dark">
+      <br>
+      <sub><b>Shopping Cart (Dark)</b></sub>
+    </td>
+    <td align="center">
+      <img src=".github/wishlist-light.png" width="200" alt="Wishlist Light">
+      <br>
+      <sub><b>Wishlist (Light)</b></sub>
+    </td>
+    <td align="center">
+      <img src=".github/wishlist-dark.png" width="200" alt="Wishlist Dark">
+      <br>
+      <sub><b>Wishlist (Dark)</b></sub>
+    </td>
+  </tr>
+</table>
+
+#### 👤 Profile Management
+<table>
+  <tr>
+    <td align="center">
+      <img src=".github/profile-light.png" width="200" alt="Profile Light">
+      <br>
+      <sub><b>Profile (Light)</b></sub>
+    </td>
+    <td align="center">
+      <img src=".github/profile-dark.png" width="200" alt="Profile Dark">
+      <br>
+      <sub><b>Profile (Dark)</b></sub>
     </td>
   </tr>
 </table>
