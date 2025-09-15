@@ -415,7 +415,7 @@ features/
 - Adaptive components that respond to theme changes
 - Consistent spacing and typography systems
 
-<!-- ## 🧪 Testing Strategy
+## 🧪 Testing Strategy
 
 The app includes comprehensive testing at multiple levels:
 
@@ -439,7 +439,7 @@ test/
 ├── product/
 ├── cart/
 └── wishlist/
-``` -->
+```
 
 <!-- ## 📱 Supported Platforms
 
