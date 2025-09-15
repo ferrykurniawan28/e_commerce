@@ -333,9 +333,9 @@ class _ProductListState extends State<ProductList> {
         if (_categories.isNotEmpty) ...[
           spacerHeight(10),
           _buildCategoryFilter(_categories),
-          spacerHeight(10),
         ],
 
+        spacerHeight(10),
         // Products Grid
         if (state is ProductLoading && !state.isLoadMore)
           Column(
